@@ -34,6 +34,7 @@ AppSettingsPage({
   build(props) {
     const storage = props.settingsStorage
     const clientId = storage.getItem('spotify_client_id') || ''
+    const clientSecret = storage.getItem('spotify_client_secret') || ''
     const refreshToken = storage.getItem('spotify_refresh_token') || ''
     const userName = storage.getItem('spotify_user') || ''
     const premium = storage.getItem('spotify_premium') || ''
@@ -43,7 +44,7 @@ AppSettingsPage({
       Text({ style: TITLE }, 'Spotify'),
       Text(
         { style: BODY },
-        'Create an app at developer.spotify.com/dashboard, then paste its Client ID below. ' +
+        'Create an app at developer.spotify.com/dashboard, then paste its Client ID and Client Secret below. ' +
           'Add the redirect URI shown by the Zepp sign-in window to that Spotify app before connecting.',
       ),
       TextInput({
@@ -53,6 +54,19 @@ AppSettingsPage({
         placeholder: 'e.g. 1a2b3c4d5e6f...',
         labelStyle: LABEL,
       }),
+      TextInput({
+        label: 'Spotify Client Secret',
+        value: clientSecret,
+        settingsKey: 'spotify_client_secret',
+        placeholder: 'from the same Spotify app page',
+        labelStyle: LABEL,
+      }),
+      Text(
+        { style: { ...BODY, marginTop: '6px', fontSize: '12px', color: '#888' } },
+        'Spotify now requires PKCE S256, but the Zepp sign-in window sends the plain method and rejects the login. ' +
+          'SONIQ therefore uses Spotify\'s standard authorization-code flow with your own Client Secret. ' +
+          'It stays in this phone\'s Zepp settings storage and is never bundled with the app.',
+      ),
       refreshToken
         ? View({ style: { marginTop: '10px' } }, [
             Text({ style: { fontSize: '14px', color: '#111' } }, `Signed in as ${userName || 'Spotify user'}`),
@@ -80,7 +94,7 @@ AppSettingsPage({
               },
             }),
           ])
-        : clientId
+        : clientId && clientSecret
           ? View({ style: { marginTop: '10px' } }, [
               Auth({
                 title: 'Spotify account',
@@ -89,7 +103,7 @@ AppSettingsPage({
                 authorizeUrl: 'https://accounts.spotify.com/authorize',
                 requestTokenUrl: 'https://accounts.spotify.com/api/token',
                 clientId,
-                pkce: true,
+                clientSecret,
                 onAccessToken: (token) => {
                   const accessToken = token && (token.access_token || token.accessToken)
                   const refreshToken = token && (token.refresh_token || token.refreshToken)
@@ -119,12 +133,14 @@ AppSettingsPage({
               }),
               Text(
                 { style: { ...BODY, marginTop: '8px' } },
-                'Use the same Client ID here as in your Spotify app; the redirect URI must be whitelisted there.',
+                'Use the same Client ID and Secret as in your Spotify app; the redirect URI must be whitelisted there.',
               ),
             ])
           : Text(
               { style: { ...BODY, marginTop: '8px' } },
-              'Save your Client ID, then reopen this settings page to connect.',
+              clientId
+                ? 'Add the Client Secret from the same Spotify app, then connect.'
+                : 'Save your Client ID and Client Secret, then connect.',
             ),
     ])
 

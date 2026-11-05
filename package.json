@@ -1,6 +1,6 @@
 {
   "name": "soniq",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "description": "SONIQ - Spotify-inspired music app for Amazfit Active (Zepp OS 3.x)",
   "type": "module",

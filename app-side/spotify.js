@@ -29,6 +29,7 @@ export function createSpotify(ctx) {
   function readState() {
     return {
       clientId: settings.getItem(KEYS.clientId) || '',
+      clientSecret: settings.getItem(KEYS.clientSecret) || '',
       refreshToken: settings.getItem(KEYS.refreshToken) || '',
       accessToken: settings.getItem(KEYS.accessToken) || '',
       expiry: Number(settings.getItem(KEYS.expiry)) || 0,
@@ -54,6 +55,7 @@ export function createSpotify(ctx) {
   async function refreshAccessToken() {
     const state = readState()
     if (!state.clientId) throw fail('spotify_not_configured', 'missing client id')
+    if (!state.clientSecret) throw fail('spotify_secret_missing', 'missing client secret')
     if (!state.refreshToken) throw fail('not_authenticated', 'missing refresh token')
 
     const response = await ctx.fetch({
@@ -63,7 +65,8 @@ export function createSpotify(ctx) {
       body:
         'grant_type=refresh_token' +
         `&refresh_token=${encodeURIComponent(state.refreshToken)}` +
-        `&client_id=${encodeURIComponent(state.clientId)}`,
+        `&client_id=${encodeURIComponent(state.clientId)}` +
+        `&client_secret=${encodeURIComponent(state.clientSecret)}`,
       timeout: 15000,
     })
 
@@ -88,6 +91,7 @@ export function createSpotify(ctx) {
   async function getToken(force) {
     const state = readState()
     if (!state.clientId) throw fail('spotify_not_configured', 'missing client id')
+    if (!state.clientSecret) throw fail('spotify_secret_missing', 'missing client secret')
     if (!state.refreshToken) throw fail('not_authenticated', 'not signed in')
     if (!force && state.accessToken && state.expiry > Date.now() + 5000) {
       return state.accessToken
@@ -166,8 +170,8 @@ export function createSpotify(ctx) {
     async status() {
       const state = readState()
       const result = {
-        configured: Boolean(state.clientId),
-        authenticated: Boolean(state.clientId && state.refreshToken),
+        configured: Boolean(state.clientId && state.clientSecret),
+        authenticated: Boolean(state.clientId && state.clientSecret && state.refreshToken),
         premium: state.premium === 'premium',
         user: state.user,
         country: state.country,

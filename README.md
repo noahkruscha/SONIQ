@@ -27,10 +27,14 @@ two-tap delete and a shortcut to the Downloaded playlist.
 **Downloaded playlist.** A local-only list persisted as JSON on the watch. It is never synced to
 Spotify. Tracks play offline with no phone nearby.
 
-**Spotify.** OAuth with PKCE from the Zepp app settings page (no client secret stored in the app),
-playlists, playlist tracks, search, likes (saved tracks), now-playing, transport controls and
-Spotify Connect device list/transfer. Token refresh happens on the phone; expired sessions and
-Premium-only actions produce clear messages.
+**Spotify.** OAuth from the Zepp app settings page, playlists, playlist tracks, search, likes (saved
+tracks), now-playing, transport controls and Spotify Connect device list/transfer. Token refresh
+happens on the phone; expired sessions and Premium-only actions produce clear messages.
+
+Spotify now requires PKCE with `S256`, while Zepp's OAuth component sends `plain` and has no option
+to change it. SONIQ therefore uses Spotify's standard authorization-code flow with the user's own
+Client Secret, entered in settings and stored only in the phone's Zepp settings storage. No secret
+is bundled in the source or the install package.
 
 **Audio output.** Shows the real state of the watch output (system-managed speaker/Bluetooth),
 watch volume, a background-playback toggle that requests the `device:os.bg_service` permission, and
@@ -77,8 +81,9 @@ Or install the built `.zab` through the Zeus CLI / Zepp developer tools. Assets 
 ## Spotify setup
 
 1. Open <https://developer.spotify.com/dashboard>, create an app.
-2. Copy its **Client ID** (no client secret is used — the app uses PKCE).
-3. In the Zepp app: Profile → SONIQ → Settings, paste the Client ID, then close and reopen the page.
+2. Copy its **Client ID** and **Client Secret** (Dashboard → your app → Settings).
+3. In the Zepp app: Profile → SONIQ → Settings, paste both values. They are stored only in the
+   phone-side settings storage; the secret is never written into the app package or this repo.
 4. Tap **Connect Spotify**. If Spotify reports a redirect-URI mismatch, copy the `redirect_uri`
    value from the error page and add that exact URI to the Spotify app's Redirect URIs.
 5. Premium is required for transport controls and Connect transfers. Free accounts can still browse
@@ -163,6 +168,11 @@ lib/*                  watch-side services: state, library, player, downloads, p
    unaffiliated with Spotify.
 10. **OAuth redirect URI depends on the Zepp app's OAuth component.** The exact redirect URI is
     shown by Spotify's error page if it is not yet whitelisted; see the setup steps.
+11. **Spotify sign-in uses the classic authorization-code flow, not PKCE.** Zepp's OAuth window
+    sends `code_challenge_method=plain`, which Spotify now rejects (`Only code_challenge_method
+    S256 is supported`). The app therefore asks for your own Client Secret and stores it in the
+    phone's Zepp settings storage; no secret is included in the repository or install package.
+    Rotate the secret in the Spotify dashboard if it is ever exposed.
 
 ## Project layout
 
@@ -175,7 +185,7 @@ app-side/catalog.js        Internet Archive / Jamendo search, resolve, cache
 app-side/downloads.js      HTTP download + BLE transfer + cancel
 app-service/playback.js    continuous playback service
 page/home|search|results|track|playlist|output|storage
-setting/index.js           Spotify Client ID + PKCE Auth, Jamendo key, sign out
+setting/index.js           Spotify Client ID/Secret Auth, Jamendo key, sign out
 lib/*                      UI kit, page chrome, persistence, library, player, downloads
 shared/*                   pure modules (also used by the Node tests)
 tests/*.test.mjs           node:test suites
