@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.zeus/
+*.log
+examples/x1/
+examples/x2/
+examples/x3/
+artifacts/

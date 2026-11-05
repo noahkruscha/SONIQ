@@ -1,0 +1,111 @@
+{
+  "configVersion": "v3",
+  "app": {
+    "appId": 1025119,
+    "appName": "SONIQ",
+    "appType": "app",
+    "version": {
+      "code": 10000,
+      "name": "1.0.0"
+    },
+    "icon": "icon.png",
+    "vender": "SONIQ",
+    "description": "Spotify-inspired music player with offline library for Amazfit Active"
+  },
+  "permissions": [
+    "device:os.bg_service"
+  ],
+  "runtime": {
+    "apiVersion": {
+      "compatible": "3.0",
+      "target": "3.6",
+      "minVersion": "3.0"
+    }
+  },
+  "targets": {
+    "soniq": {
+      "module": {
+        "page": {
+          "pages": [
+            "page/home/index.page",
+            "page/search/index.page",
+            "page/results/index.page",
+            "page/track/index.page",
+            "page/playlist/index.page",
+            "page/output/index.page",
+            "page/storage/index.page"
+          ]
+        },
+        "app-side": {
+          "path": "app-side/index"
+        },
+        "setting": {
+          "path": "setting/index"
+        },
+        "app-service": {
+          "services": [
+            "app-service/playback"
+          ]
+        }
+      },
+      "platforms": [
+        {
+          "name": "active",
+          "deviceSource": 8323328,
+          "st": "s"
+        },
+        {
+          "name": "active",
+          "deviceSource": 8323329,
+          "st": "s"
+        },
+        {
+          "name": "active2-square",
+          "deviceSource": 10223872,
+          "st": "s"
+        },
+        {
+          "name": "active2-square",
+          "deviceSource": 10223873,
+          "st": "s"
+        },
+        {
+          "name": "active2-square",
+          "deviceSource": 10223875,
+          "st": "s"
+        }
+      ],
+      "designWidth": 390
+    }
+  },
+  "i18n": {
+    "en-US": {
+      "appName": "SONIQ"
+    },
+    "de-DE": {
+      "appName": "SONIQ"
+    },
+    "es-ES": {
+      "appName": "SONIQ"
+    },
+    "fr-FR": {
+      "appName": "SONIQ"
+    },
+    "it-IT": {
+      "appName": "SONIQ"
+    },
+    "pt-BR": {
+      "appName": "SONIQ"
+    },
+    "ja-JP": {
+      "appName": "SONIQ"
+    },
+    "ko-KR": {
+      "appName": "SONIQ"
+    },
+    "zh-CN": {
+      "appName": "SONIQ"
+    }
+  },
+  "defaultLanguage": "en-US"
+}
