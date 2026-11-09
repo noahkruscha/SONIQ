@@ -86,10 +86,10 @@ Or install the built `.zab` through the Zeus CLI / Zepp developer tools. Assets 
    phone-side settings storage; the secret is never written into the app package or this repo.
 4. Add Zepp's redirect URI to the Spotify app under **Redirect URIs** — Spotify sends you back to
    Zepp's settings page, so the value is fixed by Zepp, not by SONIQ:
-   `https://zepp-os-staging.zepp.com/app-settings/redirect.html`
+   `https://zepp-os.zepp.com/app-settings/redirect.html`
    (Zepp's settings runtime builds it from the page origin and `/app-settings/redirect.html`; there
-   is no `appId` in it, despite older guides showing one. If the Zepp app loads settings over
-   plain HTTP it would send the `http://` variant instead, which Spotify no longer accepts.)
+   is no `appId` in it, despite older guides showing one. Older guides also use the staging host
+   `zepp-os-staging.zepp.com`, which production installs never send.)
 5. Tap **Connect Spotify**. If Spotify still reports a redirect-URI mismatch, note the URL of the
    sign-in error page and add that exact `redirect_uri` value.
 6. Premium is required for transport controls and Connect transfers. Free accounts can still browse
@@ -172,10 +172,10 @@ lib/*                  watch-side services: state, library, player, downloads, p
 8. **Jamendo requires your own Client ID**; without it the provider chip explains what to add.
 9. **`icon.png` is generated art**, not an official Spotify asset. The app is Spotify-inspired and
    unaffiliated with Spotify.
-10. **OAuth redirect URI belongs to Zepp, not SONIQ.** Zepp's settings runtime uses
-    `<settings origin>/app-settings/redirect.html`; whitelist that exact URI in Spotify, including
-    scheme and host. Spotify requires HTTPS, so a plain-HTTP Zepp settings origin cannot be
-    whitelisted.
+10. **OAuth redirect URI belongs to Zepp, not SONIQ.** Production Zepp serves settings from
+    `zepp-os.zepp.com`, so Zepp's runtime sends `https://zepp-os.zepp.com/app-settings/redirect.html`;
+    whitelist that exact URI in Spotify. A mismatch is reported by Spotify as
+    `redirect_uri: Not matching configuration`.
 11. **Spotify sign-in uses the classic authorization-code flow, not PKCE.** Zepp's OAuth window
     sends `code_challenge_method=plain`, which Spotify now rejects (`Only code_challenge_method
     S256 is supported`). The app therefore asks for your own Client Secret and stores it in the
