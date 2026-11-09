@@ -200,7 +200,7 @@ AppSettingsPage({
     return View({ style: { background: '#f4f4f6', minHeight: '100vh', paddingBottom: '20px' } }, [
       View({ style: { padding: '16px 14px 0 14px' } }, [
         Text({ style: { fontSize: '22px', fontWeight: '700', color: '#111' } }, 'SONIQ'),
-        Text({ style: { fontSize: '13px', color: '#777', marginTop: '2px' } }, 'v1.0.3 \u00b7 settings'),
+        Text({ style: { fontSize: '13px', color: '#777', marginTop: '2px' } }, 'v1.0.4 \u00b7 settings'),
       ]),
       clientIdCard,
       secretCard,

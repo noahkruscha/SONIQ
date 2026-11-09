@@ -1,12 +1,12 @@
 {
   "configVersion": "v3",
   "app": {
-    "appId": 1025119,
+    "appId": 1025120,
     "appName": "SONIQ",
     "appType": "app",
     "version": {
-      "code": 10003,
-      "name": "1.0.3"
+      "code": 10004,
+      "name": "1.0.4"
     },
     "icon": "icon.png",
     "vender": "SONIQ",
