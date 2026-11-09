@@ -37,7 +37,7 @@ Page(
       })
 
       const chipRefs = drawProviderRow(null, {
-        y: 60,
+        y: 70,
         providers: PROVIDERS,
         active: this.provider,
         onSelect: (id) => this.selectProvider(id),
@@ -45,16 +45,16 @@ Page(
       this.chipWidgets = chipRefs.chips.map((chip) => chip.widget)
 
       this.queryRefs = drawQuery(null, {
-        y: 100,
+        y: 120,
         query: this.query,
         onClear: () => this.setQuery(''),
       })
 
       this.hintRef = text(null, {
         x: M.pad,
-        y: 154,
+        y: 182,
         w: M.contentW,
-        h: 16,
+        h: 20,
         text: 'Type at least 2 characters',
         text_size: F.xxs,
         color: C.textMuted,
@@ -89,7 +89,7 @@ Page(
         })
       }
       const refs = drawKeyboard(null, {
-        y: 176,
+        y: 204,
         layer: this.layer,
         caps: this.caps,
         onKey: (key) => this.handleKey(key),
@@ -145,7 +145,7 @@ Page(
         })
       }
       const refs = drawProviderRow(null, {
-        y: 60,
+        y: 70,
         providers: PROVIDERS,
         active: this.provider,
         onSelect: (id) => this.selectProvider(id),

@@ -35,27 +35,27 @@ Page(
 
       background(null)
       header(null, {
-        title: truncate(this.query || 'Results', 26),
+        title: truncate(this.query || 'Results', 18),
         subtitle: this.providerLabel(),
         actionIcon: 'icon/search.png',
         onAction: () => navTo('page/search/index.page'),
       })
 
       const chipRefs = drawProviderRow(null, {
-        y: 60,
+        y: 72,
         providers: PROVIDERS,
         active: this.provider,
         onSelect: (id) => this.switchProvider(id),
       })
       this.chipWidgets = chipRefs.chips.map((chip) => chip.widget)
 
-      this.listY = 104
-      this.listH = 330
+      this.listY = 124
+      this.listH = 314
       this.statusRef = text(null, {
         x: M.pad,
-        y: 200,
+        y: 210,
         w: M.contentW,
-        h: 40,
+        h: 48,
         text: 'Searching\u2026',
         text_size: F.sm,
         color: C.textDim,
@@ -114,7 +114,7 @@ Page(
         }
       })
       const refs = drawProviderRow(null, {
-        y: 60,
+        y: 72,
         providers: PROVIDERS,
         active: this.provider,
         onSelect: (id) => this.switchProvider(id),
@@ -158,10 +158,10 @@ Page(
       this.items = items
       this.rows = items.map((track) => ({
         track,
-        title: truncate(track.title, 26),
+        title: truncate(track.title, 20),
         subtitle: truncate(
           `${track.artist}${track.duration ? ` \u2022 ${formatTime(track.duration)}` : ''}`,
-          34,
+          26,
         ),
         art: track.artworkPath || 'artwork/placeholder.png',
         action: actionIconFor(this.store, track),
@@ -185,28 +185,28 @@ Page(
         y: this.listY,
         w: M.contentW,
         h: this.listH,
-        item_space: 6,
+        item_space: 8,
         item_config: [
           {
             type_id: 1,
-            item_height: 72,
+            item_height: 88,
             item_bg_color: C.surface,
-            item_bg_radius: 14,
+            item_bg_radius: 16,
             text_view: [
               {
-                x: 74,
-                y: 10,
-                w: 214,
-                h: 24,
+                x: 82,
+                y: 12,
+                w: 192,
+                h: 28,
                 key: 'title',
                 color: C.text,
                 text_size: F.sm,
               },
               {
-                x: 74,
-                y: 36,
-                w: 214,
-                h: 18,
+                x: 82,
+                y: 44,
+                w: 192,
+                h: 22,
                 key: 'subtitle',
                 color: C.textDim,
                 text_size: F.xxs,
@@ -214,8 +214,8 @@ Page(
             ],
             text_view_count: 2,
             image_view: [
-              { x: 12, y: 12, w: 48, h: 48, key: 'art' },
-              { x: 298, y: 22, w: 28, h: 28, key: 'action', action: true },
+              { x: 14, y: 16, w: 56, h: 56, key: 'art' },
+              { x: 284, y: 26, w: 36, h: 36, key: 'action', action: true },
             ],
             image_view_count: 2,
           },
@@ -273,12 +273,19 @@ Page(
       }
       try {
         await this.bridge.spotifyControl('play', { uri: track.spotifyUri })
+        await new Promise((resolve) => setTimeout(resolve, 450))
+        const playback = await this.bridge.spotifyPlayback()
+        state.spotify.playback = playback
         state.current = { ...track, source: 'spotify' }
         state.playback.source = 'spotify'
-        state.playback.isPlaying = true
+        state.playback.isPlaying = Boolean(playback && playback.isPlaying)
         state.playback.duration = track.duration || 0
-        state.playback.position = 0
-        showToast({ content: `Playing ${truncate(track.title, 20)} on Spotify` })
+        state.playback.position = playback ? (playback.progressMs || 0) / 1000 : 0
+        if (playback && playback.isPlaying) {
+          showToast({ content: `Playing ${truncate(track.title, 20)} on Spotify` })
+        } else {
+          showToast({ content: 'Spotify did not start. Open Spotify on your phone.' })
+        }
       } catch (error) {
         showToast({ content: friendlyError(error) })
       }

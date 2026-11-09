@@ -21,7 +21,7 @@ import {
   text,
 } from '../../lib/ui-kit'
 
-const BAR_W = 306
+const BAR_W = 318
 const MAX_PLAYLISTS = 6
 
 Page(
@@ -107,76 +107,76 @@ Page(
       rect(c, { x: 0, y: 0, w: M.width, h: 1600, color: C.bg })
 
       // Header -----------------------------------------------------------
-      text(c, { x: 24, y: 16, w: 150, h: 26, text: 'SONIQ', text_size: 19, color: C.text })
-      this.refs.pillBox = rect(c, { x: 276, y: 20, w: 90, h: 22, color: C.surfaceAlt, radius: 11 })
+      text(c, { x: 24, y: 10, w: 170, h: 36, text: 'SONIQ', text_size: 28, color: C.text })
+      this.refs.pillBox = rect(c, { x: 264, y: 12, w: 102, h: 30, color: C.surfaceAlt, radius: 15 })
       this.refs.pillText = text(c, {
-        x: 276,
-        y: 20,
-        w: 90,
-        h: 22,
+        x: 264,
+        y: 12,
+        w: 102,
+        h: 30,
         text: 'OFFLINE',
-        text_size: 9,
+        text_size: F.xxs,
         color: C.textDim,
         align_h: align.CENTER_H,
         align_v: align.CENTER_V,
       })
 
       // Player -----------------------------------------------------------
-      rect(c, { x: 93, y: 54, w: 204, h: 204, color: 0x101012, radius: 20 })
+      rect(c, { x: 100, y: 54, w: 190, h: 190, color: 0x101012, radius: 22 })
       this.refs.artwork = image(c, {
-        x: 97,
+        x: 104,
         y: 58,
-        w: 196,
-        h: 196,
+        w: 182,
+        h: 182,
         src: 'artwork/placeholder.png',
       })
 
       this.refs.title = text(c, {
         x: 24,
-        y: 266,
+        y: 250,
         w: 342,
-        h: 28,
+        h: 34,
         text: 'Nothing playing',
-        text_size: 20,
+        text_size: 24,
         color: C.text,
         align_h: align.CENTER_H,
         align_v: align.CENTER_V,
       })
       this.refs.artist = text(c, {
         x: 24,
-        y: 294,
+        y: 286,
         w: 342,
-        h: 18,
+        h: 24,
         text: 'Open Downloaded to start listening',
-        text_size: F.sm,
+        text_size: 18,
         color: C.textDim,
         align_h: align.CENTER_H,
         align_v: align.CENTER_V,
       })
 
-      rect(c, { x: 42, y: 324, w: BAR_W, h: 4, color: C.track, radius: 2 })
+      rect(c, { x: 36, y: 320, w: BAR_W, h: 6, color: C.track, radius: 3 })
       this.refs.progressFill = rect(c, {
-        x: 42,
-        y: 324,
+        x: 36,
+        y: 320,
         w: 1,
-        h: 4,
+        h: 6,
         color: C.green,
-        radius: 2,
+        radius: 3,
       })
       this.refs.elapsed = text(c, {
-        x: 42,
-        y: 331,
-        w: 70,
-        h: 14,
+        x: 36,
+        y: 328,
+        w: 90,
+        h: 20,
         text: '0:00',
         text_size: F.xxs,
         color: C.textMuted,
       })
       this.refs.duration = text(c, {
-        x: 278,
-        y: 331,
-        w: 70,
-        h: 14,
+        x: 264,
+        y: 328,
+        w: 90,
+        h: 20,
         text: '0:00',
         text_size: F.xxs,
         color: C.textMuted,
@@ -184,141 +184,143 @@ Page(
       })
 
       this.refs.like = iconButton(c, {
-        x: 26,
-        y: 360,
-        size: 30,
+        x: 30,
+        y: 371,
+        size: 36,
         src: 'icon/heart.png',
         onClick: () => this.onLike(),
       })
+      circle(c, { center_x: 108, center_y: 389, radius: 24, color: C.surfaceAlt })
       this.refs.previous = iconButton(c, {
-        x: 86,
-        y: 355,
-        size: 40,
+        x: 90,
+        y: 371,
+        size: 36,
         src: 'icon/previous.png',
         onClick: () => this.onPrevious(),
       })
       this.refs.playCircle = circle(c, {
         center_x: 195,
-        center_y: 375,
-        radius: 30,
+        center_y: 388,
+        radius: 34,
         color: C.green,
         click_func: () => this.onPlayPause(),
       })
       this.refs.playIcon = iconButton(c, {
-        x: 178,
-        y: 358,
-        size: 34,
+        x: 167,
+        y: 360,
+        size: 56,
         src: 'icon/play.png',
         onClick: () => this.onPlayPause(),
       })
+      circle(c, { center_x: 282, center_y: 389, radius: 24, color: C.surfaceAlt })
       this.refs.next = iconButton(c, {
         x: 264,
-        y: 355,
-        size: 40,
+        y: 371,
+        size: 36,
         src: 'icon/next.png',
         onClick: () => this.onNext(),
       })
       this.refs.download = iconButton(c, {
-        x: 332,
-        y: 360,
-        size: 30,
+        x: 324,
+        y: 371,
+        size: 36,
         src: 'icon/download.png',
         onClick: () => this.onDownload(),
       })
 
       this.refs.status = text(c, {
         x: 24,
-        y: 406,
+        y: 428,
         w: 342,
-        h: 18,
+        h: 20,
         text: '',
-        text_size: 10,
+        text_size: F.xxs,
         color: C.textMuted,
         align_h: align.CENTER_H,
       })
 
-      rect(c, { x: 24, y: 432, w: 342, h: 1, color: C.border })
+      rect(c, { x: 24, y: 456, w: 342, h: 1, color: C.border })
 
       // Browse -----------------------------------------------------------
-      text(c, { x: 24, y: 448, w: 200, h: 16, text: 'LISTEN', text_size: F.xxs, color: C.textMuted })
+      text(c, { x: 24, y: 470, w: 200, h: 18, text: 'LISTEN', text_size: F.xxs, color: C.textMuted })
 
       rect(c, {
         x: 24,
-        y: 470,
+        y: 504,
         w: 342,
-        h: 62,
+        h: 76,
         color: C.surface,
-        radius: 14,
+        radius: 16,
         click_func: () => navTo('page/search/index.page'),
       })
-      image(c, { x: 42, y: 488, w: 26, h: 26, src: 'icon/search.png' })
-      text(c, { x: 80, y: 480, w: 220, h: 22, text: 'Search music', text_size: F.md, color: C.text })
+      image(c, { x: 42, y: 527, w: 30, h: 30, src: 'icon/search.png' })
+      text(c, { x: 86, y: 514, w: 220, h: 28, text: 'Search music', text_size: F.sm, color: C.text })
       text(c, {
-        x: 80,
-        y: 502,
+        x: 86,
+        y: 544,
         w: 230,
-        h: 16,
+        h: 20,
         text: 'Songs, artists, albums',
         text_size: F.xxs,
         color: C.textDim,
       })
-      image(c, { x: 330, y: 490, w: 18, h: 18, src: 'icon/chevron.png' })
+      image(c, { x: 330, y: 528, w: 22, h: 22, src: 'icon/chevron.png' })
 
       rect(c, {
         x: 24,
-        y: 540,
+        y: 590,
         w: 342,
-        h: 62,
+        h: 76,
         color: C.surface,
-        radius: 14,
+        radius: 16,
         click_func: () => navTo('page/output/index.page'),
       })
-      image(c, { x: 42, y: 558, w: 26, h: 26, src: 'icon/speaker.png' })
-      text(c, { x: 80, y: 550, w: 220, h: 22, text: 'Audio output', text_size: F.md, color: C.text })
+      image(c, { x: 42, y: 613, w: 30, h: 30, src: 'icon/speaker.png' })
+      text(c, { x: 86, y: 600, w: 220, h: 28, text: 'Audio output', text_size: F.sm, color: C.text })
       this.refs.outputSub = text(c, {
-        x: 80,
-        y: 572,
-        w: 240,
-        h: 16,
+        x: 86,
+        y: 630,
+        w: 230,
+        h: 20,
         text: 'Watch audio \u2022 system managed',
         text_size: F.xxs,
         color: C.textDim,
       })
-      image(c, { x: 330, y: 560, w: 18, h: 18, src: 'icon/chevron.png' })
+      image(c, { x: 330, y: 614, w: 22, h: 22, src: 'icon/chevron.png' })
 
       // Library ----------------------------------------------------------
-      text(c, { x: 24, y: 616, w: 200, h: 16, text: 'YOUR LIBRARY', text_size: F.xxs, color: C.textMuted })
+      text(c, { x: 24, y: 686, w: 220, h: 18, text: 'YOUR LIBRARY', text_size: F.xxs, color: C.textMuted })
 
       rect(c, {
         x: 24,
-        y: 636,
+        y: 710,
         w: 342,
-        h: 66,
+        h: 82,
         color: C.surface,
-        radius: 14,
+        radius: 16,
         click_func: () => navTo('page/playlist/index.page', { kind: 'downloaded', name: 'Downloaded' }),
       })
-      image(c, { x: 40, y: 648, w: 42, h: 42, src: 'artwork/placeholder.png' })
-      text(c, { x: 94, y: 646, w: 200, h: 22, text: 'Downloaded', text_size: F.md, color: C.text })
+      image(c, { x: 40, y: 726, w: 50, h: 50, src: 'artwork/placeholder.png' })
+      text(c, { x: 100, y: 718, w: 210, h: 28, text: 'Downloaded', text_size: F.sm, color: C.text })
       this.refs.downloadedSub = text(c, {
-        x: 94,
-        y: 668,
+        x: 100,
+        y: 748,
         w: 210,
-        h: 16,
+        h: 20,
         text: '0 tracks',
         text_size: F.xxs,
         color: C.textDim,
       })
-      image(c, { x: 330, y: 660, w: 18, h: 18, src: 'icon/chevron.png' })
+      image(c, { x: 330, y: 734, w: 22, h: 22, src: 'icon/chevron.png' })
 
       // Spotify ----------------------------------------------------------
       const spotify = state.spotify
       const playlists = (spotify.playlists || []).slice(0, MAX_PLAYLISTS)
       text(c, {
         x: 24,
-        y: 714,
+        y: 804,
         w: 250,
-        h: 16,
+        h: 18,
         text: spotify.authenticated ? 'SPOTIFY PLAYLISTS' : 'SPOTIFY',
         text_size: F.xxs,
         color: C.textMuted,
@@ -328,49 +330,49 @@ Page(
       if (!spotify.authenticated) {
         rect(c, {
           x: 24,
-          y: 734,
+          y: 826,
           w: 342,
-          h: 62,
+          h: 72,
           color: C.surface,
-          radius: 14,
+          radius: 16,
           click_func: () => this.showConnectHelp(),
         })
         text(c, {
           x: 42,
-          y: 744,
+          y: 834,
           w: 260,
-          h: 22,
+          h: 28,
           text: 'Connect Spotify',
-          text_size: F.md,
+          text_size: F.sm,
           color: C.text,
         })
         text(c, {
           x: 42,
-          y: 766,
+          y: 862,
           w: 280,
-          h: 16,
+          h: 20,
           text: 'Zepp app \u2192 SONIQ \u2192 Settings',
           text_size: F.xxs,
           color: C.textDim,
         })
-        image(c, { x: 330, y: 756, w: 18, h: 18, src: 'icon/chevron.png' })
+        image(c, { x: 330, y: 848, w: 22, h: 22, src: 'icon/chevron.png' })
         this.renderedPlaylists = 0
       } else if (playlists.length === 0) {
-        rect(c, { x: 24, y: 734, w: 342, h: 62, color: C.surface, radius: 14 })
+        rect(c, { x: 24, y: 826, w: 342, h: 72, color: C.surface, radius: 16 })
         text(c, {
           x: 42,
-          y: 746,
+          y: 836,
           w: 300,
-          h: 20,
+          h: 26,
           text: spotify.playlistsError ? 'Could not load playlists' : 'Loading playlists\u2026',
-          text_size: F.sm,
+          text_size: F.xs,
           color: spotify.playlistsError ? C.red : C.textDim,
         })
         text(c, {
           x: 42,
-          y: 766,
+          y: 864,
           w: 300,
-          h: 16,
+          h: 20,
           text: spotify.playlistsError || 'Keep the phone nearby',
           text_size: F.xxs,
           color: C.textMuted,
@@ -378,14 +380,14 @@ Page(
         this.renderedPlaylists = 0
       } else {
         playlists.forEach((playlist, index) => {
-          const y = 734 + index * 64
+          const y = 826 + index * 72
           rect(c, {
             x: 24,
             y,
             w: 342,
-            h: 58,
+            h: 66,
             color: C.surface,
-            radius: 14,
+            radius: 16,
             click_func: () =>
               navTo('page/playlist/index.page', {
                 kind: 'spotify',
@@ -393,71 +395,71 @@ Page(
                 name: playlist.name,
               }),
           })
-          rect(c, { x: 38, y: y + 8, w: 42, h: 42, color: 0x242426, radius: 9 })
+          rect(c, { x: 38, y: y + 10, w: 46, h: 46, color: 0x242426, radius: 10 })
           text(c, {
             x: 38,
-            y: y + 8,
-            w: 42,
-            h: 42,
+            y: y + 10,
+            w: 46,
+            h: 46,
             text: (playlist.name || '?').slice(0, 1).toUpperCase(),
-            text_size: 18,
+            text_size: 22,
             color: C.green,
             align_h: align.CENTER_H,
             align_v: align.CENTER_V,
           })
           text(c, {
-            x: 92,
-            y: y + 8,
-            w: 230,
-            h: 22,
-            text: truncate(playlist.name, 28),
-            text_size: F.sm,
+            x: 96,
+            y: y + 10,
+            w: 220,
+            h: 26,
+            text: truncate(playlist.name, 26),
+            text_size: F.xs,
             color: C.text,
           })
           text(c, {
-            x: 92,
-            y: y + 30,
-            w: 230,
-            h: 16,
+            x: 96,
+            y: y + 38,
+            w: 220,
+            h: 20,
             text: `${playlist.trackCount || 0} tracks`,
             text_size: F.xxs,
             color: C.textDim,
           })
-          image(c, { x: 330, y: y + 20, w: 18, h: 18, src: 'icon/chevron.png' })
+          image(c, { x: 330, y: y + 22, w: 22, h: 22, src: 'icon/chevron.png' })
         })
         this.renderedPlaylists = playlists.length
       }
 
-      const storageY = 734 + Math.max(this.renderedPlaylists, spotify.authenticated ? 0 : 1) * 64 + 12
+      const storageY = 826 + Math.max(this.renderedPlaylists, spotify.authenticated ? 0 : 1) * 72 + 12
       rect(c, {
         x: 24,
         y: storageY,
         w: 342,
-        h: 58,
+        h: 68,
         color: C.surface,
-        radius: 14,
+        radius: 16,
         click_func: () => navTo('page/storage/index.page'),
       })
-      image(c, { x: 42, y: storageY + 18, w: 24, h: 24, src: 'icon/list.png' })
-      text(c, { x: 80, y: storageY + 10, w: 220, h: 20, text: 'Storage', text_size: F.sm, color: C.text })
+      image(c, { x: 42, y: storageY + 20, w: 28, h: 28, src: 'icon/list.png' })
+      text(c, { x: 86, y: storageY + 10, w: 220, h: 28, text: 'Storage', text_size: F.sm, color: C.text })
       this.refs.storageSub = text(c, {
-        x: 80,
-        y: storageY + 30,
-        w: 230,
-        h: 16,
+        x: 86,
+        y: storageY + 40,
+        w: 220,
+        h: 20,
         text: 'Checking\u2026',
         text_size: F.xxs,
         color: C.textDim,
       })
-      image(c, { x: 330, y: storageY + 20, w: 18, h: 18, src: 'icon/chevron.png' })
+      image(c, { x: 330, y: storageY + 23, w: 22, h: 22, src: 'icon/chevron.png' })
 
       text(c, {
         x: 24,
-        y: storageY + 78,
+        y: storageY + 84,
         w: 342,
-        h: 16,
+        h: 20,
         text: 'SONIQ 1.0 \u2022 Offline first',
-        text_size: 9,
+        text_size: F.xxs,
         color: C.textMuted,
         align_h: align.CENTER_H,
       })
@@ -766,9 +768,9 @@ Page(
           : state.playback.position || 0
 
       const pct = percent(position, duration)
-      const width = Math.max(1, Math.round((BAR_W * pct) / 100))
+      const width = Math.max(2, Math.round((BAR_W * pct) / 100))
       if (this.refs.progressFill) {
-        this.refs.progressFill.setProperty(prop.MORE, { x: 42, y: 324, w: width, h: 4 })
+        this.refs.progressFill.setProperty(prop.MORE, { x: 36, y: 320, w: width, h: 6 })
       }
       setText(this.refs.elapsed, formatTime(position))
       setText(this.refs.duration, formatTime(duration))

@@ -29,49 +29,49 @@ Page(
       })
 
       // Local (watch) output ------------------------------------------------
-      rect(null, { x: 24, y: 66, w: 342, h: 156, color: C.surface, radius: 16 })
-      text(null, { x: 42, y: 74, w: 280, h: 22, text: 'This watch', text_size: F.md, color: C.text })
+      rect(null, { x: 24, y: 68, w: 342, h: 172, color: C.surface, radius: 18 })
+      text(null, { x: 42, y: 78, w: 280, h: 28, text: 'This watch', text_size: F.sm, color: C.text })
       text(null, {
         x: 42,
-        y: 96,
+        y: 108,
         w: 300,
-        h: 16,
+        h: 20,
         text: 'Speaker or paired Bluetooth headset',
         text_size: F.xxs,
         color: C.textDim,
       })
       text(null, {
         x: 42,
-        y: 114,
+        y: 128,
         w: 306,
-        h: 14,
+        h: 20,
         text: 'Zepp OS routes audio; apps cannot pick speaker vs headset.',
-        text_size: 9,
+        text_size: 13,
         color: C.textMuted,
       })
 
       this.refs = {}
       this.refs.minus = iconButton(null, {
-        x: 38,
-        y: 134,
-        size: 26,
+        x: 36,
+        y: 152,
+        size: 32,
         src: 'icon/minus.png',
         onClick: () => this.changeVolume(-10),
       })
-      rect(null, { x: 74, y: 146, w: BAR_W, h: 4, color: C.track, radius: 2 })
-      this.refs.volumeFill = rect(null, { x: 74, y: 146, w: 1, h: 4, color: C.green, radius: 2 })
+      rect(null, { x: 78, y: 166, w: BAR_W, h: 6, color: C.track, radius: 3 })
+      this.refs.volumeFill = rect(null, { x: 78, y: 166, w: 1, h: 6, color: C.green, radius: 3 })
       this.refs.plus = iconButton(null, {
         x: 280,
-        y: 134,
-        size: 26,
+        y: 152,
+        size: 32,
         src: 'icon/plus.png',
         onClick: () => this.changeVolume(10),
       })
       this.refs.volumeText = text(null, {
         x: 312,
-        y: 134,
-        w: 44,
-        h: 26,
+        y: 152,
+        w: 48,
+        h: 32,
         text: '70%',
         text_size: F.xxs,
         color: C.textDim,
@@ -81,18 +81,18 @@ Page(
 
       rect(null, {
         x: 34,
-        y: 168,
+        y: 192,
         w: 322,
-        h: 26,
+        h: 36,
         color: C.surfaceAlt,
-        radius: 8,
+        radius: 12,
         click_func: () => this.toggleBackground(),
       })
       text(null, {
-        x: 42,
-        y: 168,
-        w: 200,
-        h: 26,
+        x: 44,
+        y: 192,
+        w: 210,
+        h: 36,
         text: 'Keep playing after exit',
         text_size: F.xxs,
         color: C.text,
@@ -100,9 +100,9 @@ Page(
       })
       this.refs.bgStatus = text(null, {
         x: 244,
-        y: 168,
-        w: 104,
-        h: 26,
+        y: 192,
+        w: 100,
+        h: 36,
         text: 'Off',
         text_size: F.xxs,
         color: C.textDim,
@@ -111,20 +111,20 @@ Page(
       })
 
       // Spotify Connect ----------------------------------------------------
-      text(null, { x: 24, y: 232, w: 240, h: 16, text: 'SPOTIFY CONNECT', text_size: F.xxs, color: C.textMuted })
+      text(null, { x: 24, y: 254, w: 240, h: 18, text: 'SPOTIFY CONNECT', text_size: F.xxs, color: C.textMuted })
       this.refs.refresh = iconButton(null, {
-        x: 336,
-        y: 226,
-        size: 24,
+        x: 334,
+        y: 248,
+        size: 30,
         src: 'icon/refresh.png',
         onClick: () => this.loadDevices(true),
       })
 
       this.refs.status = text(null, {
         x: 24,
-        y: 250,
+        y: 276,
         w: 342,
-        h: 80,
+        h: 150,
         text: 'Checking Spotify\u2026',
         text_size: F.xs,
         color: C.textDim,
@@ -177,10 +177,10 @@ Page(
       const volume = state.player ? state.player.getVolume() : state.settings.volume || 0
       const pct = Math.max(0, Math.min(100, Number(volume) || 0))
       set(this.refs.volumeFill, {
-        x: 74,
-        y: 146,
-        w: Math.max(1, Math.round((BAR_W * pct) / 100)),
-        h: 4,
+        x: 78,
+        y: 166,
+        w: Math.max(2, Math.round((BAR_W * pct) / 100)),
+        h: 6,
       })
       setText(this.refs.volumeText, `${Math.round(pct)}%`)
     },
@@ -255,29 +255,29 @@ Page(
       setVisible(this.refs.status, false)
       const card = rect(null, {
         x: 24,
-        y: 250,
+        y: 276,
         w: 342,
-        h: 84,
+        h: 100,
         color: C.surface,
         radius: 16,
         click_func: () => showToast({ content: 'Zepp app > Profile > SONIQ > Settings' }),
       })
       const title = text(null, {
         x: 42,
-        y: 262,
+        y: 288,
         w: 300,
-        h: 22,
+        h: 28,
         text: 'Connect Spotify',
         text_size: F.sm,
         color: C.text,
       })
       const body = text(null, {
         x: 42,
-        y: 286,
+        y: 318,
         w: 300,
-        h: 34,
+        h: 50,
         text: 'Add your Client ID and sign in from the Zepp app to control Spotify Connect devices.',
-        text_size: 10,
+        text_size: F.xxs,
         color: C.textDim,
       })
       this.deviceWidgets.push(card, title, body)
@@ -285,55 +285,55 @@ Page(
 
     renderDevices(devices) {
       devices.slice(0, 3).forEach((device, index) => {
-        const y = 250 + index * 64
+        const y = 270 + index * 58
         const active = device.isActive
         const card = rect(null, {
           x: 24,
           y,
           w: 342,
-          h: 58,
+          h: 56,
           color: active ? 0x12261a : C.surface,
-          radius: 14,
+          radius: 16,
           click_func: () => this.selectDevice(device),
         })
-        const icon = image(null, { x: 40, y: y + 17, w: 24, h: 24, src: 'icon/speaker.png' })
+        const icon = image(null, { x: 40, y: y + 15, w: 26, h: 26, src: 'icon/speaker.png' })
         const name = text(null, {
           x: 78,
-          y: y + 8,
-          w: 200,
-          h: 22,
-          text: truncate(device.name, 24),
-          text_size: F.sm,
+          y: y + 6,
+          w: 190,
+          h: 26,
+          text: truncate(device.name, 22),
+          text_size: F.xs,
           color: C.text,
         })
         const subtitle = text(null, {
           x: 78,
-          y: y + 30,
-          w: 200,
-          h: 16,
+          y: y + 32,
+          w: 190,
+          h: 18,
           text: active ? 'Active device' : `${device.type || 'Device'} \u2022 ${device.volume}%`,
           text_size: F.xxs,
           color: active ? C.green : C.textDim,
         })
         const badge = active
           ? text(null, {
-              x: 288,
-              y: y + 18,
-              w: 62,
-              h: 22,
+              x: 274,
+              y: y + 14,
+              w: 76,
+              h: 26,
               text: 'ACTIVE',
-              text_size: 9,
+              text_size: 12,
               color: C.green,
               align_h: align.RIGHT,
               align_v: align.CENTER_V,
             })
           : text(null, {
-              x: 286,
-              y: y + 18,
-              w: 64,
-              h: 22,
+              x: 274,
+              y: y + 14,
+              w: 76,
+              h: 26,
               text: 'USE',
-              text_size: 9,
+              text_size: 12,
               color: C.textMuted,
               align_h: align.RIGHT,
               align_v: align.CENTER_V,

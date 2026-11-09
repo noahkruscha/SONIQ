@@ -132,6 +132,9 @@ export function createSpotify(ctx) {
     if (response.status === 429) {
       throw fail('rate_limited', 'try again shortly')
     }
+    if (response.status === 404 && body && body.error && body.error.reason === 'NO_ACTIVE_DEVICE') {
+      throw fail('spotify_no_device', 'no active Spotify device')
+    }
     if (response.status === 403) {
       const reason = body && body.error && body.error.reason
       if (reason === 'PREMIUM_REQUIRED') throw fail('premium_required', 'premium account required')
@@ -149,6 +152,66 @@ export function createSpotify(ctx) {
     }
 
     return body
+  }
+
+  /**
+   * Spotify refuses playback commands without an active Connect device. Pick
+   * the current one, else the phone, else the first unrestricted device, so a
+   * tap on the watch starts audio instead of silently killing the phone player.
+   */
+  async function pickPlaybackDevice(preferredId) {
+    try {
+      const current = await request('/v1/me/player')
+      if (current && current.device && current.device.id && !current.device.is_restricted) {
+        return current.device
+      }
+    } catch (error) {
+      if (error && error.code === 'not_authenticated') throw error
+      // A 204/404 here just means nothing is playing; fall through to the list.
+    }
+
+    let devices = []
+    try {
+      const body = await request('/v1/me/player/devices')
+      devices = ((body && body.devices) || []).filter((device) => device && device.id && !device.is_restricted)
+    } catch (error) {
+      if (error && error.code === 'not_authenticated') throw error
+      devices = []
+    }
+    if (!devices.length) return null
+
+    return (
+      devices.find((device) => device.id === preferredId) ||
+      devices.find((device) => /smartphone|phone|tablet/i.test(String(device.type || ''))) ||
+      devices.find((device) => device.is_active) ||
+      devices[0]
+    )
+  }
+
+  async function playTrack(params) {
+    let body
+    if (params.uri && params.contextUri) {
+      body = { context_uri: params.contextUri, offset: { uri: params.uri } }
+    } else if (params.uri) {
+      body = { uris: [params.uri] }
+    } else if (params.contextUri) {
+      body = { context_uri: params.contextUri }
+    } else {
+      body = {}
+    }
+
+    const preferred = params.deviceId || settings.getItem('spotify_last_device') || ''
+    const device = await pickPlaybackDevice(preferred)
+    if (!device) {
+      throw fail('spotify_no_device', 'open Spotify on the phone first')
+    }
+
+    await request(`/v1/me/player/play?device_id=${encodeURIComponent(device.id)}`, {
+      method: 'PUT',
+      body,
+    })
+    settings.setItem('spotify_last_device', device.id)
+    return { ok: true, deviceId: device.id, deviceName: device.name || '' }
   }
 
   async function meProfile() {
@@ -256,7 +319,7 @@ export function createSpotify(ctx) {
       if (!deviceId) throw fail('spotify_error', 'missing device id')
       await request('/v1/me/player', {
         method: 'PUT',
-        body: { device_ids: [deviceId], play: false },
+        body: { device_ids: [deviceId], play: true },
       })
       settings.setItem('spotify_last_device', deviceId)
       return { ok: true }
@@ -265,20 +328,8 @@ export function createSpotify(ctx) {
     async control(params) {
       const action = String(params.action || '')
       switch (action) {
-        case 'play': {
-          let body
-          if (params.uri && params.contextUri) {
-            body = { context_uri: params.contextUri, offset: { uri: params.uri } }
-          } else if (params.uri) {
-            body = { uris: [params.uri] }
-          } else if (params.contextUri) {
-            body = { context_uri: params.contextUri }
-          } else {
-            body = {}
-          }
-          await request('/v1/me/player/play', { method: 'PUT', body })
-          return { ok: true }
-        }
+        case 'play':
+          return playTrack(params)
         case 'pause':
           await request('/v1/me/player/pause', { method: 'PUT' })
           return { ok: true }

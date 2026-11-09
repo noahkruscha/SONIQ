@@ -32,19 +32,19 @@ Page(
 
       background(null)
       this.headerRefs = header(null, {
-        title: truncate(this.name, 22),
+        title: truncate(this.name, 18),
         subtitle: this.kind === 'downloaded' ? 'On this watch \u2022 not synced' : 'Spotify playlist',
         actionIcon: this.kind === 'spotify' ? 'icon/refresh.png' : undefined,
         onAction: () => this.reload(),
       })
 
-      this.listY = 92
-      this.listH = 334
+      this.listY = 110
+      this.listH = 328
       this.statusRef = text(null, {
         x: M.pad,
-        y: 180,
+        y: 200,
         w: M.contentW,
-        h: 44,
+        h: 52,
         text: '',
         text_size: F.sm,
         color: C.textDim,
@@ -102,8 +102,8 @@ Page(
       }
       this.renderList(
         items.map((item) => ({
-          title: truncate(item.title, 26),
-          subtitle: truncate(item.artist, 32),
+          title: truncate(item.title, 20),
+          subtitle: truncate(item.artist, 26),
           art: item.artworkPath || 'artwork/placeholder.png',
           action: 'icon/trash.png',
         })),
@@ -123,8 +123,8 @@ Page(
         }
         this.renderList(
           this.tracks.map((track) => ({
-            title: truncate(track.title, 26),
-            subtitle: truncate(`${track.artist}${track.duration ? ` \u2022 ${formatTime(track.duration)}` : ''}`, 34),
+            title: truncate(track.title, 20),
+            subtitle: truncate(`${track.artist}${track.duration ? ` \u2022 ${formatTime(track.duration)}` : ''}`, 26),
             art: 'artwork/placeholder.png',
             action: 'icon/play.png',
           })),
@@ -154,21 +154,21 @@ Page(
         y: this.listY,
         w: M.contentW,
         h: this.listH,
-        item_space: 6,
+        item_space: 8,
         item_config: [
           {
             type_id: 1,
-            item_height: 66,
+            item_height: 88,
             item_bg_color: C.surface,
-            item_bg_radius: 14,
+            item_bg_radius: 16,
             text_view: [
-              { x: 68, y: 8, w: 220, h: 22, key: 'title', color: C.text, text_size: F.sm },
-              { x: 68, y: 32, w: 220, h: 18, key: 'subtitle', color: C.textDim, text_size: F.xxs },
+              { x: 82, y: 12, w: 192, h: 28, key: 'title', color: C.text, text_size: F.sm },
+              { x: 82, y: 44, w: 192, h: 22, key: 'subtitle', color: C.textDim, text_size: F.xxs },
             ],
             text_view_count: 2,
             image_view: [
-              { x: 10, y: 10, w: 46, h: 46, key: 'art' },
-              { x: 298, y: 20, w: 26, h: 26, key: 'action', action: true },
+              { x: 14, y: 16, w: 56, h: 56, key: 'art' },
+              { x: 284, y: 26, w: 36, h: 36, key: 'action', action: true },
             ],
             image_view_count: 2,
           },
@@ -210,10 +210,10 @@ Page(
         message: 'Search for licensed music and save it to the watch for offline playback.',
       })
       const action = primaryButton(null, {
-        x: 60,
+        x: 50,
         y: 340,
-        w: 270,
-        h: 46,
+        w: 290,
+        h: 52,
         text: 'Find music',
         onClick: () => navTo('page/search/index.page'),
       })
@@ -256,12 +256,19 @@ Page(
           contextUri: `spotify:playlist:${this.playlistId}`,
           uri: track.spotifyUri,
         })
+        await new Promise((resolve) => setTimeout(resolve, 450))
+        const playback = await this.bridge.spotifyPlayback()
+        state.spotify.playback = playback
         state.current = { ...track, source: 'spotify' }
         state.playback.source = 'spotify'
-        state.playback.isPlaying = true
+        state.playback.isPlaying = Boolean(playback && playback.isPlaying)
         state.playback.duration = track.duration || 0
-        state.playback.position = 0
-        showToast({ content: `Playing ${truncate(track.title, 18)}` })
+        state.playback.position = playback ? (playback.progressMs || 0) / 1000 : 0
+        if (playback && playback.isPlaying) {
+          showToast({ content: `Playing ${truncate(track.title, 18)}` })
+        } else {
+          showToast({ content: 'Spotify did not start. Open Spotify on your phone.' })
+        }
       } catch (error) {
         showToast({ content: friendlyError(error) })
       }

@@ -60,41 +60,41 @@ Page(
         return
       }
 
-      rect(null, { x: 129, y: 62, w: 132, h: 132, color: 0x101012, radius: 16 })
+      rect(null, { x: 120, y: 64, w: 150, h: 150, color: 0x101012, radius: 18 })
       this.refs = {}
       this.refs.artwork = image(null, {
-        x: 133,
-        y: 66,
-        w: 124,
-        h: 124,
+        x: 123,
+        y: 67,
+        w: 144,
+        h: 144,
         src: track.artworkPath || 'artwork/placeholder.png',
       })
 
       this.refs.title = text(null, {
         x: 24,
-        y: 204,
+        y: 218,
         w: 342,
-        h: 24,
-        text: truncate(track.title, 30),
-        text_size: 17,
+        h: 30,
+        text: truncate(track.title, 28),
+        text_size: 22,
         color: C.text,
         align_h: align.CENTER_H,
       })
       this.refs.artist = text(null, {
         x: 24,
-        y: 230,
+        y: 248,
         w: 342,
-        h: 18,
-        text: truncate(track.artist, 34),
-        text_size: F.sm,
+        h: 24,
+        text: truncate(track.artist, 32),
+        text_size: 17,
         color: C.textDim,
         align_h: align.CENTER_H,
       })
       this.refs.meta = text(null, {
         x: 24,
-        y: 252,
+        y: 272,
         w: 342,
-        h: 14,
+        h: 18,
         text: this.metaLine(track),
         text_size: F.xxs,
         color: C.textMuted,
@@ -102,33 +102,33 @@ Page(
       })
       this.refs.license = text(null, {
         x: 24,
-        y: 270,
+        y: 290,
         w: 342,
-        h: 14,
+        h: 18,
         text: this.licenseLine(track),
         text_size: F.xxs,
         color: C.textMuted,
         align_h: align.CENTER_H,
       })
 
-      rect(null, { x: 24, y: 292, w: 342, h: 58, color: C.surface, radius: 14 })
+      rect(null, { x: 24, y: 310, w: 342, h: 52, color: C.surface, radius: 16 })
       this.refs.status = text(null, {
         x: 40,
-        y: 300,
+        y: 315,
         w: 310,
-        h: 18,
+        h: 20,
         text: '',
         text_size: F.xxs,
         color: C.textDim,
       })
-      rect(null, { x: 48, y: 326, w: BAR_W, h: 4, color: C.track, radius: 2 })
-      this.refs.fill = rect(null, { x: 48, y: 326, w: 1, h: 4, color: C.green, radius: 2 })
+      rect(null, { x: 48, y: 338, w: BAR_W, h: 5, color: C.track, radius: 3 })
+      this.refs.fill = rect(null, { x: 48, y: 338, w: 1, h: 5, color: C.green, radius: 3 })
 
       this.refs.storage = text(null, {
         x: 24,
-        y: 356,
+        y: 362,
         w: 342,
-        h: 14,
+        h: 18,
         text: '',
         text_size: F.xxs,
         color: C.textMuted,
@@ -137,26 +137,26 @@ Page(
 
       this.refs.primary = primaryButton(null, {
         x: 24,
-        y: 376,
+        y: 384,
         w: 342,
-        h: 48,
+        h: 42,
         text: 'Download',
         onClick: () => this.onPrimary(),
       })
 
       this.refs.openList = text(null, {
         x: 24,
-        y: 432,
-        w: 180,
-        h: 16,
+        y: 428,
+        w: 220,
+        h: 20,
         text: 'Open Downloaded',
         text_size: F.xxs,
         color: C.textDim,
         click_func: () => navTo('page/playlist/index.page', { kind: 'downloaded', name: 'Downloaded' }),
       })
       this.refs.trash = image(null, {
-        x: 334,
-        y: 428,
+        x: 332,
+        y: 426,
         w: 24,
         h: 24,
         src: 'icon/trash.png',
@@ -314,14 +314,14 @@ Page(
 
       const pct = record.phase === 'done' ? 100 : percent(record.progress, 100)
       const width = Math.max(1, Math.round((BAR_W * pct) / 100))
-      set(this.refs.fill, { x: 48, y: 326, w: width, h: 4 })
+      set(this.refs.fill, { x: 48, y: 338, w: width, h: 5 })
 
       let label = 'Download'
       if (downloaded) label = 'Play'
       else if (record.phase === 'error' || record.phase === 'canceled') label = 'Retry download'
       else if (record.phase && record.phase !== 'idle') label = 'Cancel download'
       setText(this.refs.primary.labelWidget, label)
-      const buttonGeometry = this.refs.primary.geometry || { x: 24, y: 376, w: 342, h: 48 }
+      const buttonGeometry = this.refs.primary.geometry || { x: 24, y: 384, w: 342, h: 42 }
       set(this.refs.primary.bgWidget, {
         ...buttonGeometry,
         color: downloaded ? C.green : record.phase === 'downloading' || record.phase === 'transferring' ? C.surfaceAlt : C.green,

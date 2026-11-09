@@ -95,6 +95,10 @@ Or install the built `.zab` through the Zeus CLI / Zepp developer tools. Assets 
 6. Premium is required for transport controls and Connect transfers. Free accounts can still browse
    playlists, search and change saved tracks.
 
+Playback taps are sent to the current Spotify Connect device, or to your phone when no device is
+active. Spotify must be running there; if it does not start, SONIQ says so instead of pretending
+to play.
+
 Requested scopes: `user-read-private`, `user-read-email`, `user-read-playback-state`,
 `user-modify-playback-state`, `playlist-read-private`, `playlist-read-collaborative`,
 `user-library-read`, `user-library-modify`.

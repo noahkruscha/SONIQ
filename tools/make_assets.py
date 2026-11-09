@@ -34,19 +34,20 @@ def triangle(draw, box, color, direction="right"):
         draw.polygon([(x1, y0), (x1, y1), (x0, (y0 + y1) / 2)], fill=color)
 
 
-def icon_play(size=44):
+def icon_play(size=56):
+    # The reference player's triangle is optically centred: its bounding box
+    # sits slightly right of the canvas centre so it does not look left-heavy.
     img = canvas(size)
     d = ImageDraw.Draw(img)
-    pad = size * 0.26
-    triangle(d, (pad * S, pad * S, (size - pad) * S, (size - pad) * S), WHITE)
+    triangle(d, (size * S * 0.38, size * S * 0.30, size * S * 0.68, size * S * 0.70), WHITE)
     save(img, "icon/play.png", size)
 
 
-def icon_pause(size=44):
+def icon_pause(size=56):
     img = canvas(size)
     d = ImageDraw.Draw(img)
-    w = size * 0.13 * S
-    gap = size * 0.12 * S
+    w = size * 0.11 * S
+    gap = size * 0.10 * S
     h = size * 0.44 * S
     cx = size * S / 2
     top = (size * S - h) / 2
@@ -55,11 +56,11 @@ def icon_pause(size=44):
     save(img, "icon/pause.png", size)
 
 
-def icon_skip(size=40, name="next", direction="right"):
+def icon_skip(size=48, name="next", direction="right"):
     img = canvas(size)
     d = ImageDraw.Draw(img)
     pad = size * 0.24 * S
-    bar_w = size * 0.09 * S
+    bar_w = size * 0.10 * S
     if direction == "right":
         triangle(d, (pad, pad, size * S - pad - bar_w * 2, size * S - pad), WHITE)
         d.rounded_rectangle(
@@ -320,24 +321,24 @@ def main():
     os.makedirs(OUT, exist_ok=True)
     icon_play()
     icon_pause()
-    icon_skip(40, "next", "right")
-    icon_skip(40, "previous", "left")
-    icon_heart(30, False, WHITE)
-    icon_heart(30, True, GREEN)
-    icon_download(30, False)
-    icon_download(30, True)
-    icon_check(26)
-    icon_search(30)
-    icon_speaker(30)
-    icon_list(28)
-    icon_back(22)
-    icon_chevron(18)
-    icon_trash(26)
-    icon_backspace(28)
-    icon_plus(28)
-    icon_minus(28)
-    icon_refresh(26)
-    icon_close(24)
+    icon_skip(48, "next", "right")
+    icon_skip(48, "previous", "left")
+    icon_heart(38, False, WHITE)
+    icon_heart(38, True, GREEN)
+    icon_download(38, False)
+    icon_download(38, True)
+    icon_check(30)
+    icon_search(36)
+    icon_speaker(36)
+    icon_list(34)
+    icon_back(32)
+    icon_chevron(22)
+    icon_trash(32)
+    icon_backspace(32)
+    icon_plus(32)
+    icon_minus(32)
+    icon_refresh(32)
+    icon_close(28)
     icon_blank(16)
     artwork_placeholder(300)
     app_icon(240)
