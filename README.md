@@ -63,7 +63,7 @@ OS App Service (`app-service/playback`). Reopening SONIQ stops the service and r
 ```bash
 npm install
 npm test          # 15 unit tests, no device needed
-npm run build     # produces dist/<appId>-SONIQ-1.0.0-<timestamp>.zab
+npm run build     # produces dist/<appId>-SONIQ-<version>-<timestamp>.zab
 ```
 
 `npm run build` calls `tools/zeus.mjs`, which runs the official Zeus CLI with its bundled private

@@ -5,6 +5,9 @@
 
 export const APP_NAME = 'SONIQ'
 
+/** Shown in settings and on the storage screen so an installed build can be identified. */
+export const APP_VERSION = '1.0.2'
+
 export const PROVIDER = {
   ARCHIVE: 'archive',
   JAMENDO: 'jamendo',

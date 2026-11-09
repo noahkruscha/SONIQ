@@ -5,8 +5,8 @@
     "appName": "SONIQ",
     "appType": "app",
     "version": {
-      "code": 10001,
-      "name": "1.0.1"
+      "code": 10002,
+      "name": "1.0.2"
     },
     "icon": "icon.png",
     "vender": "SONIQ",

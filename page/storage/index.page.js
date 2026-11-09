@@ -2,7 +2,7 @@ import { BasePage } from '@zeppos/zml/base-page'
 import { align } from '@zos/ui'
 import { showToast } from '@zos/interaction'
 import { formatBytes } from '../../shared/format'
-import { STORAGE_RESERVE_BYTES } from '../../shared/constants'
+import { APP_VERSION, STORAGE_RESERVE_BYTES } from '../../shared/constants'
 import { cleanupFiles, stats } from '../../lib/library'
 import { background, header, navTo } from '../../lib/page-kit'
 import { getState } from '../../lib/state'
@@ -21,7 +21,7 @@ Page(
       background(null)
       header(null, {
         title: 'Storage',
-        subtitle: 'Watch memory',
+        subtitle: `v${APP_VERSION} \u00b7 watch memory`,
         actionIcon: 'icon/refresh.png',
         onAction: () => this.store.downloadsMgr.refreshDisk(),
       })
