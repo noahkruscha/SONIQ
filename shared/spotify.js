@@ -75,7 +75,7 @@ export function mapPlaylist(item) {
   return {
     id: item.id,
     name: item.name || 'Playlist',
-    trackCount: (item.tracks && Number(item.tracks.total)) || 0,
+    trackCount: Number((item.items && item.items.total) || (item.tracks && item.tracks.total)) || 0,
     artworkUrl: pickImage((item.images || []).slice().reverse(), 120),
     spotifyUri: item.uri || `spotify:playlist:${item.id}`,
     owner: (item.owner && item.owner.display_name) || '',
@@ -93,7 +93,9 @@ export function mapPlaylists(json) {
 export function mapPlaylistTracks(json) {
   const items = (json && json.items) || []
   const tracks = items
-    .map((entry) => (entry && entry.track ? mapSpotifyTrack(entry.track) : null))
+    // Spotify's 2026 playlist API returns { item }, older responses { track }.
+    .map((entry) => (entry && (entry.item || entry.track)) || null)
+    .map(mapSpotifyTrack)
     .filter(Boolean)
   return {
     tracks,
@@ -134,7 +136,10 @@ export function mapPlayback(json) {
 }
 
 export function isPremiumProfile(json) {
-  return Boolean(json && json.product === 'premium')
+  // Development-mode apps no longer receive `product`; treat unknown as a
+  // Premium account and let the playback endpoint return PREMIUM_REQUIRED.
+  if (!json || json.product === undefined) return true
+  return json.product === 'premium'
 }
 
 export function looksLikeSavedTracks(json) {

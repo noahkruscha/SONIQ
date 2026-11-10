@@ -16,6 +16,7 @@ import {
   isJpegOrPng,
   isMp3Header,
   isTargetBitrate,
+  isUserAudioUrl,
   parseLength,
   safeJsonParse,
 } from '../shared/validate.js'
@@ -82,6 +83,17 @@ test('URL allowlist accepts only authorised audio hosts', () => {
   assert.equal(isAllowedArtworkUrl('https://i.scdn.co/image/ab67616d00001e02'), true)
   assert.equal(isAllowedArtworkUrl('https://archive.org/services/img/x'), true)
   assert.equal(isAllowedArtworkUrl('https://example.com/a.jpg'), false)
+})
+
+test('user links allow any public https MP3 and block private hosts', () => {
+  assert.equal(isUserAudioUrl('https://example.com/song.mp3'), true)
+  assert.equal(isUserAudioUrl('https://cdn.example.com/a/b.mp3?token=1'), true)
+  assert.equal(isUserAudioUrl('http://example.com/song.mp3'), false)
+  assert.equal(isUserAudioUrl('https://example.com/song.ogg'), false)
+  assert.equal(isUserAudioUrl('https://example.com/page'), false)
+  assert.equal(isUserAudioUrl('https://localhost/song.mp3'), false)
+  assert.equal(isUserAudioUrl('https://127.0.0.1/song.mp3'), false)
+  assert.equal(isUserAudioUrl('https://192.168.1.2/song.mp3'), false)
 })
 
 test('audio validation helpers', () => {

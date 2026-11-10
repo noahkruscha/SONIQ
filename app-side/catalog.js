@@ -8,6 +8,7 @@ import {
   pickAudioFile,
 } from '../shared/providers/archive'
 import { buildSearchUrl as buildJamendoUrl, parseJamendo } from '../shared/providers/jamendo'
+import { buildSearchUrl as buildOpenverseUrl, parseOpenverse } from '../shared/providers/openverse'
 import { isAllowedAudioUrl, safeJsonParse } from '../shared/validate'
 import { KEYS, fail } from './keys'
 
@@ -43,10 +44,10 @@ export function createCatalog(ctx) {
 
   async function archiveSearch(query) {
     const response = await ctx.fetch({
-      url: buildSearchUrl(query, 6),
+      url: buildSearchUrl(query, 12),
       timeout: 15000,
     })
-    const docs = parseSearch(parse(response)).slice(0, 6)
+    const docs = parseSearch(parse(response)).slice(0, 12)
     const tracks = []
 
     await Promise.all(
@@ -75,6 +76,18 @@ export function createCatalog(ctx) {
     return tracks.slice(0, SEARCH_RESULT_LIMIT)
   }
 
+  async function openverseSearch(query) {
+    const response = await ctx.fetch({
+      url: buildOpenverseUrl(query, SEARCH_RESULT_LIMIT),
+      headers: { 'User-Agent': 'SONIQ/1.0 (Zepp OS watch app)' },
+      timeout: 15000,
+    })
+    return parseOpenverse(parse(response))
+      .filter((track) => track.audioUrl && isAllowedAudioUrl(track.audioUrl))
+      .filter((track) => !track.duration || track.duration <= MAX_TRACK_SECONDS)
+      .slice(0, SEARCH_RESULT_LIMIT)
+  }
+
   async function jamendoSearch(query) {
     const clientId = ctx.settings.getItem(KEYS.jamendoClientId) || ''
     if (!clientId) throw fail('provider_key_missing', 'Jamendo client id not set')
@@ -95,16 +108,24 @@ export function createCatalog(ctx) {
   return {
     async search(params) {
       const query = String(params.query || '').trim()
-      const provider = params.provider === PROVIDER.JAMENDO ? PROVIDER.JAMENDO : PROVIDER.ARCHIVE
+      const provider =
+        params.provider === PROVIDER.JAMENDO
+          ? PROVIDER.JAMENDO
+          : params.provider === PROVIDER.OPENVERSE
+            ? PROVIDER.OPENVERSE
+            : PROVIDER.ARCHIVE
       if (query.length < 2) throw fail('no_results', 'query too short')
 
       const key = `${provider}:${query.toLowerCase()}`
       const hit = cached(key)
       if (hit) return { provider, items: hit, cached: true }
 
-      const items = provider === PROVIDER.JAMENDO
-        ? await jamendoSearch(query)
-        : await archiveSearch(query)
+      const items =
+        provider === PROVIDER.JAMENDO
+          ? await jamendoSearch(query)
+          : provider === PROVIDER.OPENVERSE
+            ? await openverseSearch(query)
+            : await archiveSearch(query)
 
       cache.set(key, { at: Date.now(), value: items })
       return { provider, items, cached: false }

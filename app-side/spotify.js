@@ -12,6 +12,15 @@ import { KEYS, fail } from './keys'
 const TOKEN_URL = 'https://accounts.spotify.com/api/token'
 const API_BASE = 'https://api.spotify.com'
 
+/** Scopes the watch UI needs. A token issued without them returns 403. */
+const REQUIRED_SCOPES = [
+  'user-read-playback-state',
+  'user-modify-playback-state',
+  'playlist-read-private',
+  'playlist-read-collaborative',
+  'user-library-modify',
+]
+
 /**
  * Official Spotify Web API client. Runs in the phone-side service where fetch
  * is available. Tokens come from the settings page OAuth (PKCE), so no client
@@ -36,6 +45,7 @@ export function createSpotify(ctx) {
       user: settings.getItem(KEYS.user) || '',
       premium: settings.getItem(KEYS.premium) || '',
       country: settings.getItem(KEYS.country) || '',
+      scopes: settings.getItem(KEYS.scopes) || '',
     }
   }
 
@@ -50,6 +60,7 @@ export function createSpotify(ctx) {
     settings.setItem(KEYS.user, '')
     settings.setItem(KEYS.premium, '')
     settings.setItem(KEYS.country, '')
+    settings.setItem(KEYS.scopes, '')
   }
 
   async function refreshAccessToken() {
@@ -85,6 +96,7 @@ export function createSpotify(ctx) {
     settings.setItem(KEYS.accessToken, body.access_token)
     settings.setItem(KEYS.expiry, expiry)
     if (body.refresh_token) settings.setItem(KEYS.refreshToken, body.refresh_token)
+    if (body.scope) settings.setItem(KEYS.scopes, body.scope)
     return body.access_token
   }
 
@@ -137,8 +149,13 @@ export function createSpotify(ctx) {
     }
     if (response.status === 403) {
       const reason = body && body.error && body.error.reason
-      if (reason === 'PREMIUM_REQUIRED') throw fail('premium_required', 'premium account required')
       const message = (body && body.error && body.error.message) || 'forbidden'
+      if (reason === 'PREMIUM_REQUIRED' || /premium/i.test(message)) {
+        throw fail('premium_required', 'premium account required')
+      }
+      if (reason === 'INSUFFICIENT_CLIENT_SCOPE' || /scope|permission/i.test(message)) {
+        throw fail('spotify_scope', message)
+      }
       throw fail('spotify_forbidden', message)
     }
     if (response.status >= 400) {
@@ -166,7 +183,15 @@ export function createSpotify(ctx) {
         return current.device
       }
     } catch (error) {
-      if (error && error.code === 'not_authenticated') throw error
+      if (
+        error &&
+        (error.code === 'not_authenticated' ||
+          error.code === 'spotify_scope' ||
+          error.code === 'premium_required' ||
+          error.code === 'spotify_forbidden')
+      ) {
+        throw error
+      }
       // A 204/404 here just means nothing is playing; fall through to the list.
     }
 
@@ -175,7 +200,15 @@ export function createSpotify(ctx) {
       const body = await request('/v1/me/player/devices')
       devices = ((body && body.devices) || []).filter((device) => device && device.id && !device.is_restricted)
     } catch (error) {
-      if (error && error.code === 'not_authenticated') throw error
+      if (
+        error &&
+        (error.code === 'not_authenticated' ||
+          error.code === 'spotify_scope' ||
+          error.code === 'premium_required' ||
+          error.code === 'spotify_forbidden')
+      ) {
+        throw error
+      }
       devices = []
     }
     if (!devices.length) return null
@@ -232,13 +265,31 @@ export function createSpotify(ctx) {
 
     async status() {
       const state = readState()
+      let granted = state.scopes.split(/\s+/).filter(Boolean)
       const result = {
         configured: Boolean(state.clientId && state.clientSecret),
         authenticated: Boolean(state.clientId && state.clientSecret && state.refreshToken),
-        premium: state.premium === 'premium',
+        premium: state.premium !== 'free',
         user: state.user,
         country: state.country,
+        scopes: granted,
+        needsReauth: false,
       }
+      // The settings page may have stored a token from before scopes were
+      // requested. Refresh once to learn exactly what Spotify granted.
+      if (result.authenticated && !granted.length) {
+        try {
+          await refreshAccessToken()
+          granted = readState().scopes.split(/\s+/).filter(Boolean)
+          result.scopes = granted
+        } catch (error) {
+          // Keep status usable; the next action will surface auth errors.
+        }
+      }
+      const missing = granted.length
+        ? REQUIRED_SCOPES.filter((scope) => granted.indexOf(scope) === -1)
+        : []
+      result.needsReauth = missing.length > 0
       // The settings page stores the profile after sign-in, but that fetch can
       // fail (offline webview). Fill it in once from the phone service instead.
       if (result.authenticated && !state.premium) {
@@ -276,10 +327,19 @@ export function createSpotify(ctx) {
       if (!id) throw fail('spotify_error', 'missing playlist id')
       const offset = Math.max(0, Number(params.offset) || 0)
       const limit = Math.min(50, Math.max(1, Number(params.limit) || 20))
-      const body = await request(
-        `/v1/playlists/${encodeURIComponent(id)}/tracks?offset=${offset}&limit=${limit}&additional_types=track`,
-      )
-      return mapPlaylistTracks(body)
+      try {
+        const body = await request(
+          `/v1/playlists/${encodeURIComponent(id)}/items?offset=${offset}&limit=${limit}&additional_types=track`,
+        )
+        return mapPlaylistTracks(body)
+      } catch (error) {
+        if (error && error.code === 'spotify_forbidden') {
+          // Since February 2026 Spotify only returns items for playlists the
+          // signed-in user owns or collaborates on.
+          throw fail('spotify_playlist', 'only your own playlists can be opened')
+        }
+        throw error
+      }
     },
 
     async search(params) {
@@ -294,7 +354,8 @@ export function createSpotify(ctx) {
     async saved(params) {
       const ids = Array.isArray(params.ids) ? params.ids.slice(0, 50) : []
       if (!ids.length) return { contains: [] }
-      const body = await request(`/v1/me/tracks/contains?ids=${ids.map(encodeURIComponent).join(',')}`)
+      const uris = ids.map((id) => encodeURIComponent(`spotify:track:${id}`)).join(',')
+      const body = await request(`/v1/me/library/contains?uris=${uris}`)
       return { contains: Array.isArray(body) ? body : [] }
     },
 
@@ -302,9 +363,9 @@ export function createSpotify(ctx) {
       const trackId = String(params.trackId || '')
       if (!trackId) throw fail('spotify_error', 'missing track id')
       const liked = Boolean(params.liked)
-      await request(`/v1/me/tracks?ids=${encodeURIComponent(trackId)}`, {
+      await request('/v1/me/library', {
         method: liked ? 'PUT' : 'DELETE',
-        body: { ids: [trackId] },
+        body: { uris: [`spotify:track:${trackId}`] },
       })
       return { liked }
     },

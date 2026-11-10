@@ -34,7 +34,7 @@ def triangle(draw, box, color, direction="right"):
         draw.polygon([(x1, y0), (x1, y1), (x0, (y0 + y1) / 2)], fill=color)
 
 
-def icon_play(size=56):
+def icon_play(size=88):
     # The reference player's triangle is optically centred: its bounding box
     # sits slightly right of the canvas centre so it does not look left-heavy.
     img = canvas(size)
@@ -43,7 +43,7 @@ def icon_play(size=56):
     save(img, "icon/play.png", size)
 
 
-def icon_pause(size=56):
+def icon_pause(size=88):
     img = canvas(size)
     d = ImageDraw.Draw(img)
     w = size * 0.11 * S
@@ -56,7 +56,7 @@ def icon_pause(size=56):
     save(img, "icon/pause.png", size)
 
 
-def icon_skip(size=48, name="next", direction="right"):
+def icon_skip(size=64, name="next", direction="right"):
     img = canvas(size)
     d = ImageDraw.Draw(img)
     pad = size * 0.24 * S
@@ -285,8 +285,8 @@ def artwork_placeholder(size=300):
         cx = cy = size * S / 2
         d.ellipse([cx - r, cy - r, cx + r, cy + r], outline=(255, 255, 255, alpha), width=2 * S)
     # music note
-    cx = size * S * 0.5
-    cy = size * S * 0.53
+    cx = size * S * 0.481
+    cy = size * S * 0.564
     r = size * S * 0.11
     d.ellipse([cx - r * 2.1, cy, cx, cy + r * 1.5], fill=GREEN)
     d.ellipse([cx + r * 0.35, cy - r * 0.5, cx + r * 2.45, cy + r], fill=GREEN)
@@ -321,8 +321,8 @@ def main():
     os.makedirs(OUT, exist_ok=True)
     icon_play()
     icon_pause()
-    icon_skip(48, "next", "right")
-    icon_skip(48, "previous", "left")
+    icon_skip(64, "next", "right")
+    icon_skip(64, "previous", "left")
     icon_heart(38, False, WHITE)
     icon_heart(38, True, GREEN)
     icon_download(38, False)

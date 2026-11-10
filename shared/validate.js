@@ -43,6 +43,25 @@ export function isAllowedArtworkUrl(url) {
   return matchesHost(hostOf(url), ARTWORK_HOSTS)
 }
 
+/**
+ * A link the user pasted into settings. Any public https host is accepted, but
+ * the file must end in .mp3 and local/private addresses are rejected. The watch
+ * still checks the MP3 header after transfer.
+ */
+export function isUserAudioUrl(url) {
+  const value = String(url || '').trim()
+  if (!/^https:\/\//i.test(value) || !/\.mp3(?:[?#]|$)/i.test(value)) return false
+  const host = hostOf(value)
+  if (!host || host.indexOf('.') === -1) return false
+  if (
+    /^(localhost|127\.|10\.|192\.168\.|169\.254\.|\[)/i.test(host) ||
+    /^172\.(1[6-9]|2\d|3[01])\./i.test(host)
+  ) {
+    return false
+  }
+  return true
+}
+
 export function sanitizeFileName(name) {
   return String(name || '')
     .replace(/[^a-zA-Z0-9._-]+/g, '-')

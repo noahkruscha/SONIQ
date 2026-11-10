@@ -6,11 +6,12 @@
 export const APP_NAME = 'SONIQ'
 
 /** Shown in settings and on the storage screen so an installed build can be identified. */
-export const APP_VERSION = '1.0.5'
+export const APP_VERSION = '1.0.6'
 
 export const PROVIDER = {
   ARCHIVE: 'archive',
   JAMENDO: 'jamendo',
+  OPENVERSE: 'openverse',
   SPOTIFY: 'spotify',
 }
 
@@ -37,7 +38,7 @@ export const SEARCH_RESULT_LIMIT = 12
 export const PLAYLIST_PAGE_SIZE = 20
 
 /** Spotify Web API polling interval while the player screen is visible. */
-export const SPOTIFY_POLL_MS = 12000
+export const SPOTIFY_POLL_MS = 6000
 
 export const DATA_ROOT = 'data://soniq'
 export const LIBRARY_PATH = 'data://soniq/library.json'

@@ -70,6 +70,8 @@ AppSideService(
           return this.downloader.cancel(String(params.trackId || ''))
         case 'artwork.fetch':
           return this.downloader.artwork(String(params.trackId || ''), String(params.url || ''))
+        case 'download.pickup':
+          return this.downloader.pickup()
 
         default: {
           const error = new Error(`unknown_method: ${method}`)

@@ -13,6 +13,7 @@ import { set, setText, text } from '../../lib/ui-kit'
 
 const PROVIDERS = [
   { id: 'archive', label: 'Archive' },
+  { id: 'openverse', label: 'Open' },
   { id: 'jamendo', label: 'Jamendo' },
   { id: 'spotify', label: 'Spotify' },
 ]
@@ -49,8 +50,8 @@ Page(
       })
       this.chipWidgets = chipRefs.chips.map((chip) => chip.widget)
 
-      this.listY = 124
-      this.listH = 314
+      this.listY = 126
+      this.listH = 312
       this.statusRef = text(null, {
         x: M.pad,
         y: 210,
@@ -90,6 +91,7 @@ Page(
     providerLabel() {
       if (this.provider === 'spotify') return 'Spotify catalogue'
       if (this.provider === 'jamendo') return 'Jamendo \u2022 Creative Commons'
+      if (this.provider === 'openverse') return 'Openverse \u2022 Creative Commons'
       return 'Internet Archive \u2022 Creative Commons'
     },
 
@@ -158,10 +160,10 @@ Page(
       this.items = items
       this.rows = items.map((track) => ({
         track,
-        title: truncate(track.title, 20),
+        title: truncate(track.title, 18),
         subtitle: truncate(
           `${track.artist}${track.duration ? ` \u2022 ${formatTime(track.duration)}` : ''}`,
-          26,
+          24,
         ),
         art: track.artworkPath || 'artwork/placeholder.png',
         action: actionIconFor(this.store, track),
@@ -189,15 +191,15 @@ Page(
         item_config: [
           {
             type_id: 1,
-            item_height: 88,
+            item_height: 92,
             item_bg_color: C.surface,
             item_bg_radius: 16,
             text_view: [
               {
                 x: 82,
-                y: 12,
+                y: 10,
                 w: 192,
-                h: 28,
+                h: 30,
                 key: 'title',
                 color: C.text,
                 text_size: F.sm,
@@ -206,7 +208,7 @@ Page(
                 x: 82,
                 y: 44,
                 w: 192,
-                h: 22,
+                h: 24,
                 key: 'subtitle',
                 color: C.textDim,
                 text_size: F.xxs,
@@ -214,8 +216,8 @@ Page(
             ],
             text_view_count: 2,
             image_view: [
-              { x: 14, y: 16, w: 56, h: 56, key: 'art' },
-              { x: 284, y: 26, w: 36, h: 36, key: 'action', action: true },
+              { x: 14, y: 18, w: 56, h: 56, key: 'art' },
+              { x: 284, y: 26, w: 40, h: 40, key: 'action', action: true },
             ],
             image_view_count: 2,
           },
@@ -269,6 +271,10 @@ Page(
       }
       if (!state.spotify.premium) {
         showToast({ content: 'Spotify playback needs Premium.' })
+        return
+      }
+      if (state.spotify.needsReauth) {
+        showToast({ content: 'Spotify permissions are missing. Reconnect in Zepp settings.' })
         return
       }
       try {

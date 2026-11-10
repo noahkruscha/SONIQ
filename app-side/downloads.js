@@ -1,6 +1,6 @@
 import { AUDIO_MAX_BYTES, AUDIO_MIN_BYTES, SIDE_CALL } from '../shared/constants'
-import { isAllowedArtworkUrl, isAllowedAudioUrl, sanitizeFileName } from '../shared/validate'
-import { fail } from './keys'
+import { isAllowedArtworkUrl, isAllowedAudioUrl, isUserAudioUrl, sanitizeFileName } from '../shared/validate'
+import { KEYS, fail } from './keys'
 
 /**
  * Phone-side download + BLE transfer. network.downloader streams the file to
@@ -33,7 +33,8 @@ export function createDownloads(ctx) {
   function start(track) {
     const trackId = track && track.id
     if (!trackId) throw fail('download_failed', 'missing track id')
-    if (!isAllowedAudioUrl(track.audioUrl)) throw fail('invalid_audio', 'blocked source')
+    const allowed = track.userLink ? isUserAudioUrl(track.audioUrl) : isAllowedAudioUrl(track.audioUrl)
+    if (!allowed) throw fail('invalid_audio', 'blocked source')
 
     cancel(trackId)
 
@@ -164,5 +165,12 @@ export function createDownloads(ctx) {
     })
   }
 
-  return { start, cancel, artwork }
+  function pickup() {
+    const url = String(ctx.settings.getItem(KEYS.pendingAudioUrl) || '').trim()
+    if (!url) return { url: '' }
+    ctx.settings.setItem(KEYS.pendingAudioUrl, '')
+    return { url }
+  }
+
+  return { start, cancel, artwork, pickup }
 }

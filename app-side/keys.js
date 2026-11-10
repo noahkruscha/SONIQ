@@ -8,7 +8,9 @@ export const KEYS = {
   user: 'spotify_user',
   premium: 'spotify_premium',
   country: 'spotify_country',
+  scopes: 'spotify_scopes',
   jamendoClientId: 'jamendo_client_id',
+  pendingAudioUrl: 'pending_audio_url',
 }
 
 export function fail(code, message) {

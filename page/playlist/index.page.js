@@ -38,8 +38,8 @@ Page(
         onAction: () => this.reload(),
       })
 
-      this.listY = 110
-      this.listH = 328
+      this.listY = 112
+      this.listH = 326
       this.statusRef = text(null, {
         x: M.pad,
         y: 200,
@@ -102,8 +102,8 @@ Page(
       }
       this.renderList(
         items.map((item) => ({
-          title: truncate(item.title, 20),
-          subtitle: truncate(item.artist, 26),
+          title: truncate(item.title, 18),
+          subtitle: truncate(item.artist, 24),
           art: item.artworkPath || 'artwork/placeholder.png',
           action: 'icon/trash.png',
         })),
@@ -123,8 +123,8 @@ Page(
         }
         this.renderList(
           this.tracks.map((track) => ({
-            title: truncate(track.title, 20),
-            subtitle: truncate(`${track.artist}${track.duration ? ` \u2022 ${formatTime(track.duration)}` : ''}`, 26),
+            title: truncate(track.title, 18),
+            subtitle: truncate(`${track.artist}${track.duration ? ` \u2022 ${formatTime(track.duration)}` : ''}`, 24),
             art: 'artwork/placeholder.png',
             action: 'icon/play.png',
           })),
@@ -158,17 +158,17 @@ Page(
         item_config: [
           {
             type_id: 1,
-            item_height: 88,
+            item_height: 92,
             item_bg_color: C.surface,
             item_bg_radius: 16,
             text_view: [
-              { x: 82, y: 12, w: 192, h: 28, key: 'title', color: C.text, text_size: F.sm },
-              { x: 82, y: 44, w: 192, h: 22, key: 'subtitle', color: C.textDim, text_size: F.xxs },
+              { x: 82, y: 10, w: 192, h: 30, key: 'title', color: C.text, text_size: F.sm },
+              { x: 82, y: 44, w: 192, h: 24, key: 'subtitle', color: C.textDim, text_size: F.xxs },
             ],
             text_view_count: 2,
             image_view: [
-              { x: 14, y: 16, w: 56, h: 56, key: 'art' },
-              { x: 284, y: 26, w: 36, h: 36, key: 'action', action: true },
+              { x: 14, y: 18, w: 56, h: 56, key: 'art' },
+              { x: 284, y: 26, w: 40, h: 40, key: 'action', action: true },
             ],
             image_view_count: 2,
           },

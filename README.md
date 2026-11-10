@@ -17,8 +17,13 @@ reveals Search, Audio output, the local *Downloaded* library, Spotify playlists 
 
 **Search.** In-app QWERTY keyboard with shift, symbols layer, backspace and space, modelled on the
 reference keyboard app. Typing debounces for 700 ms and prefetches results; at least two characters
-are required. Providers: Internet Archive (no key), Jamendo (optional Client ID) and Spotify
-(requires sign-in). Empty, loading and error states are shown instead of blank lists.
+are required. Providers: Internet Archive (no key), Openverse (no key, Creative Commons audio),
+Jamendo (optional Client ID) and Spotify (requires sign-in). Empty, loading and error states are
+shown instead of blank lists.
+
+**Download from a link.** In the Zepp app settings, a direct `https://...mp3` URL can be saved.
+The next time SONIQ opens on the watch it downloads that file, transfers it over BLE and validates
+the MP3 before saving. Page URLs from streaming services are rejected: only direct audio links work.
 
 **Track screen.** Artwork, title, artist, duration, estimated size, licence line, storage warning,
 download progress (download → BLE transfer → local save), cancel, retry, auto-play when finished,
@@ -29,7 +34,10 @@ Spotify. Tracks play offline with no phone nearby.
 
 **Spotify.** OAuth from the Zepp app settings page, playlists, playlist tracks, search, likes (saved
 tracks), now-playing, transport controls and Spotify Connect device list/transfer. Token refresh
-happens on the phone; expired sessions and Premium-only actions produce clear messages.
+happens on the phone; expired sessions and Premium-only actions produce clear messages. The app
+uses Spotify's February 2026 API shape (`/playlists/{id}/items`, `/me/library`), so opening a
+playlist works for playlists you own or collaborate on. Spotify no longer returns items for public
+playlists you merely follow, and SONIQ says so when that happens.
 
 Spotify now requires PKCE with `S256`, while Zepp's OAuth component sends `plain` and has no option
 to change it. SONIQ therefore uses Spotify's standard authorization-code flow with the user's own
@@ -61,21 +69,18 @@ OS App Service (`app-service/playback`). Reopening SONIQ stops the service and r
 ## Install and build
 
 ```bash
-npm install
-npm test          # 15 unit tests, no device needed
+npm ci
+npm test          # 17 unit tests, no device needed
 npm run build     # produces dist/<appId>-SONIQ-<version>-<timestamp>.zab
+node tools/zeus.mjs preview --select   # build and install on the connected watch
 ```
 
 `npm run build` calls `tools/zeus.mjs`, which runs the official Zeus CLI with its bundled private
 modules on `NODE_PATH` (newer Node versions otherwise fail to resolve `zeppos-app-utils`).
 
-To preview on a connected watch with developer mode:
-
-```bash
-npm run dev       # Zeus dev server; scan the QR code with the Zepp app
-```
-
-Or install the built `.zab` through the Zeus CLI / Zepp developer tools. Assets are regenerated with
+The `preview --select` command installs the current source on a watch that is connected through
+the Zepp app's developer mode; `npm run dev` is not required. You can also install a built `.zab`
+through the Zeus CLI / Zepp developer tools. Assets are regenerated with
 `npm run assets` (requires Python 3 and Pillow); the generated PNGs are already committed.
 
 ## Spotify setup
@@ -106,8 +111,11 @@ Requested scopes: `user-read-private`, `user-read-email`, `user-read-playback-st
 ## Jamendo setup (optional)
 
 Create an app at <https://devportal.jamendo.com>, paste the **Client ID** in SONIQ settings. Jamendo
-tracks are Creative Commons and expose 128 kbps MP3 downloads. Without a key, SONIQ uses the
-Internet Archive only.
+tracks are Creative Commons and expose 128 kbps MP3 downloads.
+
+No key is needed for **Openverse** (<https://api.openverse.org>), which indexes Creative Commons
+tracks from Jamendo and other sources and returns direct MP3 URLs. Archive and Openverse are the
+default keyless providers.
 
 ## How it works
 
@@ -127,8 +135,10 @@ lib/*                  watch-side services: state, library, player, downloads, p
   API. A download therefore flows: phone HTTP download → size/format checks → BLE transfer → MP3
   header validation on the watch → `renameSync` into `data://music` → library JSON.
 - **Search licensing.** Internet Archive items are fetched with `licenseurl` and only items with an
-  explicit Creative Commons or public-domain licence are listed. Jamendo results are CC by default;
-  the API is asked for 128 kbps MP3 (`audioformat=mp32`).
+  explicit Creative Commons or public-domain licence are listed; the licence filter is part of the
+  search query, because most unfiltered audio items have no downloadable licence. Openverse results
+  carry a CC licence URL; they are still restricted to hosts SONIQ trusts. Jamendo results are CC by
+  default; the API is asked for 128 kbps MP3 (`audioformat=mp32`).
 - **Progress below API 4.2.** `@zos/media` has no `getCurrentTime()`/`seek()` on API_LEVEL 3.6, so
   the progress bar is display-only and derived from play/pause events plus elapsed wall time.
 - **State.** One state object lives in `globalData` because each page is a separate bundle; the media
@@ -145,13 +155,14 @@ lib/*                  watch-side services: state, library, player, downloads, p
 
 ## Verification (what was actually run)
 
-- `npm test` — **15 tests pass**: formatting, storage math, URL allow-list (Spotify CDN rejected),
-  MP3/JPEG header validation, size/bitrate checks, track identity/dedupe, library add/remove/like/
-  prune/orphan cleanup, download state machine, Archive and Jamendo parsers/licence gate, Spotify
-  mappers (tracks, playlists, devices, playback, saved tracks), keyboard state machine.
+- `npm test` — **17 tests pass**: formatting, storage math, URL allow-list (Spotify CDN and
+  private HTTP hosts rejected), MP3/JPEG header validation, size/bitrate checks, track
+  identity/dedupe, library add/remove/like/prune/orphan cleanup, download state machine, Archive,
+  Openverse and Jamendo parsers/licence gate, Spotify mappers (tracks, old and new playlist shapes,
+  devices, playback, saved tracks), keyboard state machine.
 - `npm run build` — Zeus CLI 1.9.3 builds a `.zab` for device sources 8323328 / 8323329 (Active) and
   the Active 2 Square sources; all 7 pages, the app service, app-side and settings bundles, and all
-  24 assets are present in the package; no bundler warnings.
+  23 assets are present in the package; no bundler warnings.
 - **Not tested on physical hardware.** No watch or phone was available, so runtime behaviour (BLE
   transfer throughput, OAuth redirect handling on a real Zepp app, actual audio routing, notification
   and background-service behaviour) is unverified. Treat those as needing a device pass.
@@ -173,6 +184,9 @@ lib/*                  watch-side services: state, library, player, downloads, p
    "Clean up files"; the watch library is reconciled against existing files at startup.
 7. **Spotify search shows tracks only in the watch result list** (artists/albums are parsed but not
    rendered as separate destinations).
+8. **Followed public Spotify playlists cannot be opened.** Since February 2026 the Web API only
+   returns playlist items to the owner or a collaborator; SONIQ shows that limitation instead of a
+   generic error.
 8. **Jamendo requires your own Client ID**; without it the provider chip explains what to add.
 9. **`icon.png` is generated art**, not an official Spotify asset. The app is Spotify-inspired and
    unaffiliated with Spotify.

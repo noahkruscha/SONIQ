@@ -29,18 +29,18 @@ Page(
       this.refs = {}
       this.refs.free = text(null, {
         x: 24,
-        y: 70,
+        y: 68,
         w: 342,
-        h: 40,
+        h: 44,
         text: '\u2014',
-        text_size: 30,
+        text_size: 34,
         color: C.text,
       })
       this.refs.total = text(null, {
         x: 24,
-        y: 112,
+        y: 116,
         w: 342,
-        h: 20,
+        h: 22,
         text: 'Reading disk information\u2026',
         text_size: F.xxs,
         color: C.textDim,

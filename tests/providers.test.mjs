@@ -10,6 +10,7 @@ import {
   pickAudioFile,
 } from '../shared/providers/archive.js'
 import { buildSearchUrl as jamendoUrl, mapJamendoTrack, parseJamendo } from '../shared/providers/jamendo.js'
+import { buildSearchUrl as openverseUrl, parseOpenverse } from '../shared/providers/openverse.js'
 import {
   mapDevices,
   mapPlayback,
@@ -18,6 +19,7 @@ import {
   mapPlaylists,
   mapSearch,
   mapSpotifyTrack,
+  isPremiumProfile,
   pickImage,
   savedTrackIds,
 } from '../shared/spotify.js'
@@ -73,6 +75,30 @@ test('archive picks a 128-160 kbps MP3 and builds a download URL', () => {
   assert.equal(track.artist, 'Artist')
   assert.match(track.id, /^arc-/)
   assert.match(track.artworkUrl, /archive\.org\/services\/img/)
+})
+
+test('openverse parsing maps CC audio and decodes entities', () => {
+  assert.match(openverseUrl('miles davis', 8), /api\.openverse\.org\/v1\/audio/)
+  assert.match(openverseUrl('miles davis', 8), /q=miles%20davis/)
+  const tracks = parseOpenverse({
+    results: [
+      {
+        id: 'abc',
+        title: 'Jazz &amp; Rain',
+        creator: 'Angus &amp; Friends',
+        url: 'https://prod-1.storage.jamendo.com/?trackid=1&format=mp32',
+        duration: 255000,
+        license_url: 'https://creativecommons.org/licenses/by-sa/3.0/',
+        thumbnail: 'https://i.scdn.co/image/x',
+      },
+      { id: 'none', title: 'No audio' },
+    ],
+  })
+  assert.equal(tracks.length, 1)
+  assert.equal(tracks[0].title, 'Jazz & Rain')
+  assert.equal(tracks[0].artist, 'Angus & Friends')
+  assert.equal(tracks[0].duration, 255)
+  assert.equal(tracks[0].provider, 'openverse')
 })
 
 test('jamendo parsing', () => {
@@ -152,6 +178,14 @@ test('spotify mapping', () => {
   assert.equal(tracks.tracks.length, 1)
   assert.equal(tracks.total, 2)
 
+  const renamed = mapPlaylistTracks({
+    items: [{ item: { id: 't4', name: 'Four', type: 'track', artists: [], album: { images: [] } } }],
+    total: 1,
+  })
+  assert.equal(renamed.tracks.length, 1)
+  assert.equal(renamed.tracks[0].title, 'Four')
+  assert.equal(mapPlaylist({ id: 'p3', items: { total: 7 } }).trackCount, 7)
+
   const devices = mapDevices({ devices: [{ id: 'd1', name: 'Phone', is_active: true, volume_percent: 40 }] })
   assert.equal(devices[0].isActive, true)
   assert.equal(devices[0].volume, 40)
@@ -168,4 +202,7 @@ test('spotify mapping', () => {
   assert.equal(playback.available, true)
 
   assert.deepEqual(savedTrackIds({ items: [{ track: { id: 'a' } }, { track: null }] }), ['a'])
+  assert.equal(isPremiumProfile({ product: 'premium' }), true)
+  assert.equal(isPremiumProfile({ product: 'free' }), false)
+  assert.equal(isPremiumProfile({}), true)
 })

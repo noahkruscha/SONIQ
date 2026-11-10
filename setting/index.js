@@ -44,6 +44,7 @@ AppSettingsPage({
     const userName = storage.getItem('spotify_user') || ''
     const premium = storage.getItem('spotify_premium') || ''
     const jamendoId = storage.getItem('jamendo_client_id') || ''
+    const pendingLink = storage.getItem('pending_audio_url') || ''
 
     const clientIdCard = View({ style: CARD }, [
       Text({ style: TITLE }, 'Spotify Client ID'),
@@ -93,7 +94,9 @@ AppSettingsPage({
           Text({ style: { fontSize: '14px', color: '#111' } }, `Signed in as ${userName || 'Spotify user'}`),
           Text(
             { style: { fontSize: '12px', color: '#1db954', marginTop: '4px' } },
-            premium === 'premium' ? 'Premium: playback control enabled' : 'Free account: browsing, search and likes only',
+            premium === 'free'
+              ? 'Free account: Spotify may refuse playback control'
+              : 'Premium assumed: Spotify will confirm when playback starts',
           ),
           Button({
             label: 'Sign out',
@@ -112,6 +115,7 @@ AppSettingsPage({
               storage.setItem('spotify_user', '')
               storage.setItem('spotify_premium', '')
               storage.setItem('spotify_country', '')
+              storage.setItem('spotify_scopes', '')
             },
           }),
         ]
@@ -131,6 +135,7 @@ AppSettingsPage({
                 const expiresIn = token && (token.expires_in || token.expiresIn)
                 if (!accessToken) return
                 storage.setItem('spotify_access_token', accessToken)
+                if (token && token.scope) storage.setItem('spotify_scopes', token.scope)
                 if (refreshToken) storage.setItem('spotify_refresh_token', refreshToken)
                 storage.setItem(
                   'spotify_token_expiry',
@@ -154,7 +159,8 @@ AppSettingsPage({
             }),
             Text(
               { style: NOTE },
-              'Add the redirect URI shown by the Zepp sign-in window to your Spotify app first.',
+              'Add the redirect URI shown by the Zepp sign-in window to your Spotify app first. ' +
+                'If the watch says Spotify permissions are missing, sign out below and connect again.',
             ),
           ]
         : [
@@ -167,6 +173,28 @@ AppSettingsPage({
           ]
 
     const accountCard = View({ style: CARD }, [Text({ style: TITLE }, 'Spotify account'), ...accountContent])
+
+    const linkCard = View({ style: CARD }, [
+      Text({ style: TITLE }, 'Download from a link'),
+      Text(
+        { style: BODY },
+        'Paste a direct https link to an MP3 file (the address should end in .mp3). SONIQ ' +
+          'downloads it to the watch the next time you open the app, then verifies the file before saving it.',
+      ),
+      View({ style: FIELD }, [
+        TextInput({
+          label: 'MP3 link',
+          value: pendingLink,
+          settingsKey: 'pending_audio_url',
+          placeholder: 'https://example.com/song.mp3',
+          labelStyle: LABEL,
+        }),
+      ]),
+      Text(
+        { style: NOTE },
+        'Saved automatically. Only direct audio links work; page links from streaming services cannot be downloaded.',
+      ),
+    ])
 
     const jamendoCard = View({ style: CARD }, [
       Text({ style: TITLE }, 'Jamendo'),
@@ -200,11 +228,12 @@ AppSettingsPage({
     return View({ style: { background: '#f4f4f6', minHeight: '100vh', paddingBottom: '20px' } }, [
       View({ style: { padding: '16px 14px 0 14px' } }, [
         Text({ style: { fontSize: '22px', fontWeight: '700', color: '#111' } }, 'SONIQ'),
-        Text({ style: { fontSize: '13px', color: '#777', marginTop: '2px' } }, 'v1.0.5 \u00b7 settings'),
+        Text({ style: { fontSize: '13px', color: '#777', marginTop: '2px' } }, 'v1.0.6 \u00b7 settings'),
       ]),
       clientIdCard,
       secretCard,
       accountCard,
+      linkCard,
       jamendoCard,
       notes,
       View({ style: { padding: '0 10px' } }, [

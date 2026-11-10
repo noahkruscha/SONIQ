@@ -60,75 +60,75 @@ Page(
         return
       }
 
-      rect(null, { x: 120, y: 64, w: 150, h: 150, color: 0x101012, radius: 18 })
+      rect(null, { x: 135, y: 70, w: 120, h: 120, color: 0x101012, radius: 18 })
       this.refs = {}
       this.refs.artwork = image(null, {
-        x: 123,
-        y: 67,
-        w: 144,
-        h: 144,
+        x: 138,
+        y: 73,
+        w: 114,
+        h: 114,
         src: track.artworkPath || 'artwork/placeholder.png',
       })
 
       this.refs.title = text(null, {
-        x: 24,
-        y: 218,
-        w: 342,
-        h: 30,
-        text: truncate(track.title, 28),
-        text_size: 22,
+        x: 20,
+        y: 202,
+        w: 350,
+        h: 34,
+        text: truncate(track.title, 26),
+        text_size: 24,
         color: C.text,
         align_h: align.CENTER_H,
       })
       this.refs.artist = text(null, {
-        x: 24,
-        y: 248,
-        w: 342,
-        h: 24,
-        text: truncate(track.artist, 32),
-        text_size: 17,
+        x: 20,
+        y: 236,
+        w: 350,
+        h: 26,
+        text: truncate(track.artist, 30),
+        text_size: 20,
         color: C.textDim,
         align_h: align.CENTER_H,
       })
       this.refs.meta = text(null, {
-        x: 24,
-        y: 272,
-        w: 342,
-        h: 18,
+        x: 20,
+        y: 262,
+        w: 350,
+        h: 20,
         text: this.metaLine(track),
         text_size: F.xxs,
         color: C.textMuted,
         align_h: align.CENTER_H,
       })
       this.refs.license = text(null, {
-        x: 24,
-        y: 290,
-        w: 342,
-        h: 18,
+        x: 20,
+        y: 282,
+        w: 350,
+        h: 20,
         text: this.licenseLine(track),
         text_size: F.xxs,
         color: C.textMuted,
         align_h: align.CENTER_H,
       })
 
-      rect(null, { x: 24, y: 310, w: 342, h: 52, color: C.surface, radius: 16 })
+      rect(null, { x: 24, y: 302, w: 342, h: 66, color: C.surface, radius: 16 })
       this.refs.status = text(null, {
         x: 40,
-        y: 315,
+        y: 308,
         w: 310,
-        h: 20,
+        h: 22,
         text: '',
         text_size: F.xxs,
         color: C.textDim,
       })
-      rect(null, { x: 48, y: 338, w: BAR_W, h: 5, color: C.track, radius: 3 })
-      this.refs.fill = rect(null, { x: 48, y: 338, w: 1, h: 5, color: C.green, radius: 3 })
+      rect(null, { x: 48, y: 332, w: BAR_W, h: 5, color: C.track, radius: 3 })
+      this.refs.fill = rect(null, { x: 48, y: 332, w: 1, h: 5, color: C.green, radius: 3 })
 
       this.refs.storage = text(null, {
-        x: 24,
-        y: 362,
-        w: 342,
-        h: 18,
+        x: 40,
+        y: 344,
+        w: 310,
+        h: 20,
         text: '',
         text_size: F.xxs,
         color: C.textMuted,
@@ -137,9 +137,9 @@ Page(
 
       this.refs.primary = primaryButton(null, {
         x: 24,
-        y: 384,
+        y: 376,
         w: 342,
-        h: 42,
+        h: 48,
         text: 'Download',
         onClick: () => this.onPrimary(),
       })
@@ -147,18 +147,18 @@ Page(
       this.refs.openList = text(null, {
         x: 24,
         y: 428,
-        w: 220,
-        h: 20,
+        w: 240,
+        h: 22,
         text: 'Open Downloaded',
         text_size: F.xxs,
         color: C.textDim,
         click_func: () => navTo('page/playlist/index.page', { kind: 'downloaded', name: 'Downloaded' }),
       })
       this.refs.trash = image(null, {
-        x: 332,
-        y: 426,
-        w: 24,
-        h: 24,
+        x: 330,
+        y: 424,
+        w: 26,
+        h: 26,
         src: 'icon/trash.png',
         click_func: () => this.onDelete(),
       })
@@ -212,6 +212,8 @@ Page(
 
     providerLabel(track) {
       if (track.provider === 'jamendo') return 'Jamendo \u2022 MP3 128 kbps'
+      if (track.provider === 'openverse') return 'Openverse \u2022 Creative Commons'
+      if (track.provider === 'link') return 'Direct link \u2022 MP3'
       if (track.provider === 'archive') return 'Internet Archive \u2022 MP3'
       if (track.provider === 'spotify') return 'Spotify catalogue'
       return 'On this watch'
@@ -314,14 +316,14 @@ Page(
 
       const pct = record.phase === 'done' ? 100 : percent(record.progress, 100)
       const width = Math.max(1, Math.round((BAR_W * pct) / 100))
-      set(this.refs.fill, { x: 48, y: 338, w: width, h: 5 })
+      set(this.refs.fill, { x: 48, y: 332, w: width, h: 5 })
 
       let label = 'Download'
       if (downloaded) label = 'Play'
       else if (record.phase === 'error' || record.phase === 'canceled') label = 'Retry download'
       else if (record.phase && record.phase !== 'idle') label = 'Cancel download'
       setText(this.refs.primary.labelWidget, label)
-      const buttonGeometry = this.refs.primary.geometry || { x: 24, y: 384, w: 342, h: 42 }
+      const buttonGeometry = this.refs.primary.geometry || { x: 24, y: 376, w: 342, h: 48 }
       set(this.refs.primary.bgWidget, {
         ...buttonGeometry,
         color: downloaded ? C.green : record.phase === 'downloading' || record.phase === 'transferring' ? C.surfaceAlt : C.green,

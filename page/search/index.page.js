@@ -13,6 +13,7 @@ import { set, setText, text } from '../../lib/ui-kit'
 
 const PROVIDERS = [
   { id: 'archive', label: 'Archive' },
+  { id: 'openverse', label: 'Open' },
   { id: 'jamendo', label: 'Jamendo' },
   { id: 'spotify', label: 'Spotify' },
 ]
@@ -37,7 +38,7 @@ Page(
       })
 
       const chipRefs = drawProviderRow(null, {
-        y: 70,
+        y: 68,
         providers: PROVIDERS,
         active: this.provider,
         onSelect: (id) => this.selectProvider(id),
@@ -54,7 +55,7 @@ Page(
         x: M.pad,
         y: 182,
         w: M.contentW,
-        h: 20,
+        h: 18,
         text: 'Type at least 2 characters',
         text_size: F.xxs,
         color: C.textMuted,
@@ -89,7 +90,7 @@ Page(
         })
       }
       const refs = drawKeyboard(null, {
-        y: 204,
+        y: 202,
         layer: this.layer,
         caps: this.caps,
         onKey: (key) => this.handleKey(key),
@@ -145,7 +146,7 @@ Page(
         })
       }
       const refs = drawProviderRow(null, {
-        y: 70,
+        y: 68,
         providers: PROVIDERS,
         active: this.provider,
         onSelect: (id) => this.selectProvider(id),

@@ -1,9 +1,9 @@
 import { BasePage } from '@zeppos/zml/base-page'
 import { createWidget, widget, prop, align, setStatusBarVisible } from '@zos/ui'
 import { showToast } from '@zos/interaction'
-import { SPOTIFY_POLL_MS } from '../../shared/constants'
+import { APP_VERSION, SPOTIFY_POLL_MS } from '../../shared/constants'
 import { formatBytes, formatTime, percent, truncate } from '../../shared/format'
-import { isDownloadable } from '../../shared/tracks'
+import { isDownloadable, makeTrackId } from '../../shared/tracks'
 import { createBridge } from '../../lib/api'
 import { friendlyError } from '../../lib/errors'
 import { hasTrack, isLiked, stats, toggleLocalLike } from '../../lib/library'
@@ -62,6 +62,7 @@ Page(
       this.refreshAll()
       this.startLocalTick()
       this.loadSpotify()
+      this.checkPendingLink()
     },
 
     onDestroy() {
@@ -107,13 +108,13 @@ Page(
       rect(c, { x: 0, y: 0, w: M.width, h: 1600, color: C.bg })
 
       // Header -----------------------------------------------------------
-      text(c, { x: 24, y: 10, w: 170, h: 36, text: 'SONIQ', text_size: 28, color: C.text })
-      this.refs.pillBox = rect(c, { x: 264, y: 12, w: 102, h: 30, color: C.surfaceAlt, radius: 15 })
+      text(c, { x: 24, y: 8, w: 190, h: 38, text: 'SONIQ', text_size: 34, color: C.text })
+      this.refs.pillBox = rect(c, { x: 258, y: 12, w: 108, h: 32, color: C.surfaceAlt, radius: 16 })
       this.refs.pillText = text(c, {
-        x: 264,
+        x: 258,
         y: 12,
-        w: 102,
-        h: 30,
+        w: 108,
+        h: 32,
         text: 'OFFLINE',
         text_size: F.xxs,
         color: C.textDim,
@@ -122,42 +123,42 @@ Page(
       })
 
       // Player -----------------------------------------------------------
-      rect(c, { x: 100, y: 54, w: 190, h: 190, color: 0x101012, radius: 22 })
+      rect(c, { x: 95, y: 50, w: 200, h: 200, color: 0x101012, radius: 22 })
       this.refs.artwork = image(c, {
-        x: 104,
-        y: 58,
-        w: 182,
-        h: 182,
+        x: 99,
+        y: 54,
+        w: 192,
+        h: 192,
         src: 'artwork/placeholder.png',
       })
 
       this.refs.title = text(c, {
-        x: 24,
-        y: 250,
-        w: 342,
-        h: 34,
+        x: 20,
+        y: 254,
+        w: 350,
+        h: 36,
         text: 'Nothing playing',
-        text_size: 24,
+        text_size: 28,
         color: C.text,
         align_h: align.CENTER_H,
         align_v: align.CENTER_V,
       })
       this.refs.artist = text(c, {
-        x: 24,
-        y: 286,
-        w: 342,
-        h: 24,
+        x: 20,
+        y: 290,
+        w: 350,
+        h: 26,
         text: 'Open Downloaded to start listening',
-        text_size: 18,
+        text_size: 20,
         color: C.textDim,
         align_h: align.CENTER_H,
         align_v: align.CENTER_V,
       })
 
-      rect(c, { x: 36, y: 320, w: BAR_W, h: 6, color: C.track, radius: 3 })
+      rect(c, { x: 36, y: 326, w: BAR_W, h: 6, color: C.track, radius: 3 })
       this.refs.progressFill = rect(c, {
         x: 36,
-        y: 320,
+        y: 326,
         w: 1,
         h: 6,
         color: C.green,
@@ -165,7 +166,7 @@ Page(
       })
       this.refs.elapsed = text(c, {
         x: 36,
-        y: 328,
+        y: 334,
         w: 90,
         h: 20,
         text: '0:00',
@@ -174,7 +175,7 @@ Page(
       })
       this.refs.duration = text(c, {
         x: 264,
-        y: 328,
+        y: 334,
         w: 90,
         h: 20,
         text: '0:00',
@@ -184,62 +185,62 @@ Page(
       })
 
       this.refs.like = iconButton(c, {
-        x: 30,
-        y: 371,
-        size: 36,
+        x: 25,
+        y: 369,
+        size: 40,
         src: 'icon/heart.png',
         onClick: () => this.onLike(),
       })
-      circle(c, { center_x: 108, center_y: 389, radius: 24, color: C.surfaceAlt })
+      circle(c, { center_x: 105, center_y: 389, radius: 28, color: C.surfaceAlt })
       this.refs.previous = iconButton(c, {
-        x: 90,
-        y: 371,
-        size: 36,
+        x: 73,
+        y: 357,
+        size: 64,
         src: 'icon/previous.png',
         onClick: () => this.onPrevious(),
       })
       this.refs.playCircle = circle(c, {
         center_x: 195,
-        center_y: 388,
-        radius: 34,
+        center_y: 389,
+        radius: 38,
         color: C.green,
         click_func: () => this.onPlayPause(),
       })
       this.refs.playIcon = iconButton(c, {
-        x: 167,
-        y: 360,
-        size: 56,
+        x: 151,
+        y: 345,
+        size: 88,
         src: 'icon/play.png',
         onClick: () => this.onPlayPause(),
       })
-      circle(c, { center_x: 282, center_y: 389, radius: 24, color: C.surfaceAlt })
+      circle(c, { center_x: 285, center_y: 389, radius: 28, color: C.surfaceAlt })
       this.refs.next = iconButton(c, {
-        x: 264,
-        y: 371,
-        size: 36,
+        x: 253,
+        y: 357,
+        size: 64,
         src: 'icon/next.png',
         onClick: () => this.onNext(),
       })
       this.refs.download = iconButton(c, {
-        x: 324,
-        y: 371,
-        size: 36,
+        x: 325,
+        y: 369,
+        size: 40,
         src: 'icon/download.png',
         onClick: () => this.onDownload(),
       })
 
       this.refs.status = text(c, {
-        x: 24,
-        y: 428,
-        w: 342,
-        h: 20,
+        x: 20,
+        y: 426,
+        w: 350,
+        h: 22,
         text: '',
         text_size: F.xxs,
         color: C.textMuted,
         align_h: align.CENTER_H,
       })
 
-      rect(c, { x: 24, y: 456, w: 342, h: 1, color: C.border })
+      rect(c, { x: 24, y: 454, w: 342, h: 1, color: C.border })
 
       // Browse -----------------------------------------------------------
       text(c, { x: 24, y: 470, w: 200, h: 18, text: 'LISTEN', text_size: F.xxs, color: C.textMuted })
@@ -412,7 +413,7 @@ Page(
             y: y + 10,
             w: 220,
             h: 26,
-            text: truncate(playlist.name, 26),
+            text: truncate(playlist.name, 24),
             text_size: F.xs,
             color: C.text,
           })
@@ -458,7 +459,7 @@ Page(
         y: storageY + 84,
         w: 342,
         h: 20,
-        text: 'SONIQ 1.0 \u2022 Offline first',
+        text: `SONIQ v${APP_VERSION} \u2022 Offline first`,
         text_size: F.xxs,
         color: C.textMuted,
         align_h: align.CENTER_H,
@@ -502,12 +503,16 @@ Page(
         state.spotify.premium = Boolean(status && status.premium)
         state.spotify.user = (status && status.user) || ''
         state.spotify.country = (status && status.country) || ''
+        state.spotify.needsReauth = Boolean(status && status.needsReauth)
       } catch (error) {
         state.spotify.authenticated = false
       }
       this.refreshSpotify()
 
       if (!state.spotify.authenticated) return
+      if (state.spotify.needsReauth) {
+        showToast({ content: 'Spotify permissions expired. Reconnect in Zepp settings.' })
+      }
 
       try {
         const lists = await this.bridge.spotifyPlaylists(0, MAX_PLAYLISTS)
@@ -528,38 +533,55 @@ Page(
 
     async refreshSpotifyPlayback() {
       const state = this.store
-      if (!state.spotify.authenticated) return
+      if (!state.spotify.authenticated || !this.refs || !this.refs.title) return
       try {
         const playback = await this.bridge.spotifyPlayback()
         state.spotify.playback = playback
         state.spotify.lastSync = Date.now()
-        if (playback && playback.isPlaying && !state.playback.isPlaying) {
-          this.adoptSpotifyPlayback(playback)
-          this.startTick()
+        const spotifyActive = state.playback.source === 'spotify'
+        const track = playback && playback.track
+        const currentId = state.current && state.current.id
+        const changed = Boolean(track && track.id !== currentId)
+        // A skip on the phone changes the item without pausing, and a pause
+        // changes is_playing without changing the item. Sync both so the home
+        // player never keeps showing the previous song.
+        if (track && (spotifyActive || !currentId)) {
+          if (changed) state.current = { ...track, source: 'spotify', provider: 'spotify' }
+          state.playback.source = 'spotify'
+          state.playback.isPlaying = Boolean(playback.isPlaying)
+          state.playback.duration = track.duration || 0
+          state.playback.position = (playback.progressMs || 0) / 1000
+          state.playback.error = ''
+          if (changed) {
+            this.store.downloadsMgr.ensureArtwork({ ...track, artworkPath: '' })
+            this.startTick()
+          }
+          this.refreshLike()
         }
         this.refreshPlayer()
+        this.refreshProgress()
         this.refreshSpotify()
-        this.refreshLike()
       } catch (error) {
         state.spotify.playback = null
         this.refreshSpotify()
       }
     },
 
-    adoptSpotifyPlayback(playback) {
-      if (!playback || !playback.track) return
-      const state = this.store
-      state.current = {
-        ...playback.track,
-        source: 'spotify',
-        provider: 'spotify',
+    async checkPendingLink() {
+      try {
+        const result = await this.bridge.downloadPickup()
+        const url = result && result.url
+        if (!url) return
+        const track = trackFromLink(url)
+        if (!track) {
+          showToast({ content: 'The saved link is not a direct MP3 URL.' })
+          return
+        }
+        showToast({ content: 'Downloading your link\u2026' })
+        this.store.downloadsMgr.start(track)
+      } catch (error) {
+        // A missing or malformed link must never block the home screen.
       }
-      state.playback.source = 'spotify'
-      state.playback.isPlaying = Boolean(playback.isPlaying)
-      state.playback.duration = playback.track.duration || 0
-      state.playback.position = (playback.progressMs || 0) / 1000
-      state.playback.error = ''
-      this.refreshLike()
     },
 
     startLocalTick() {
@@ -633,9 +655,15 @@ Page(
         showToast({ content: 'Spotify playback control needs Premium.' })
         return
       }
+      if (state.spotify.needsReauth) {
+        showToast({ content: 'Spotify permissions are missing. Reconnect in Zepp settings.' })
+        return
+      }
       try {
         await this.bridge.spotifyControl(action)
         await this.refreshSpotifyPlayback()
+        // Spotify can take a moment to publish the new item after a skip.
+        setTimeout(() => this.refreshSpotifyPlayback(), 900)
       } catch (error) {
         showToast({ content: friendlyError(error) })
       }
@@ -740,8 +768,8 @@ Page(
         return
       }
 
-      setText(this.refs.title, truncate(track.title, 30))
-      setText(this.refs.artist, truncate(track.artist, 34))
+      setText(this.refs.title, truncate(track.title, 26))
+      setText(this.refs.artist, truncate(track.artist, 32))
       setSrc(this.refs.artwork, track.artworkPath || 'artwork/placeholder.png')
       setText(this.refs.pillText, isSpotify ? 'SPOTIFY' : 'ON WATCH')
       this.refs.pillText.setProperty(prop.MORE, { color: isSpotify ? C.green : C.textDim })
@@ -770,7 +798,7 @@ Page(
       const pct = percent(position, duration)
       const width = Math.max(2, Math.round((BAR_W * pct) / 100))
       if (this.refs.progressFill) {
-        this.refs.progressFill.setProperty(prop.MORE, { x: 36, y: 320, w: width, h: 6 })
+        this.refs.progressFill.setProperty(prop.MORE, { x: 36, y: 326, w: width, h: 6 })
       }
       setText(this.refs.elapsed, formatTime(position))
       setText(this.refs.duration, formatTime(duration))
@@ -908,6 +936,34 @@ Page(
     },
   }),
 )
+
+function trackFromLink(url) {
+  const value = String(url || '').trim()
+  if (!/^https:\/\//i.test(value) || !/\.mp3(?:[?#]|$)/i.test(value)) return null
+  let title = 'Linked track'
+  try {
+    const path = value.split(/[?#]/)[0]
+    const file = decodeURIComponent((path.split('/').pop() || '').replace(/\.mp3$/i, ''))
+    title = file.replace(/[_-]+/g, ' ').trim() || title
+  } catch (error) {
+    // Keep the generic title for URLs that are not valid percent-encoding.
+  }
+  return {
+    id: makeTrackId('link', value),
+    title: title.slice(0, 80),
+    artist: 'From link',
+    album: '',
+    duration: 0,
+    provider: 'link',
+    source: 'local',
+    userLink: true,
+    audioUrl: value,
+    artworkUrl: '',
+    artworkPath: '',
+    license: '',
+    size: 0,
+  }
+}
 
 function readScroll(container) {
   if (!container) return 0

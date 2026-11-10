@@ -13,7 +13,9 @@ const METADATA_HOST = 'https://archive.org/metadata/'
 const DOWNLOAD_HOST = 'https://archive.org/download/'
 
 export function buildSearchUrl(query, rows = 8) {
-  const q = `${String(query || '').trim()} AND mediatype:(audio)`
+  // Without the licence filter the search returns mostly radio recordings with
+  // no downloadable licence, so every result was rejected downstream.
+  const q = `${String(query || '').trim()} AND mediatype:(audio) AND licenseurl:(*)`
   const fields = ['identifier', 'title', 'creator', 'licenseurl', 'downloads']
     .map((f) => `fl%5B%5D=${f}`)
     .join('&')

@@ -29,7 +29,7 @@ Page(
       })
 
       // Local (watch) output ------------------------------------------------
-      rect(null, { x: 24, y: 68, w: 342, h: 172, color: C.surface, radius: 18 })
+      rect(null, { x: 24, y: 68, w: 342, h: 180, color: C.surface, radius: 18 })
       text(null, { x: 42, y: 78, w: 280, h: 28, text: 'This watch', text_size: F.sm, color: C.text })
       text(null, {
         x: 42,
@@ -42,36 +42,36 @@ Page(
       })
       text(null, {
         x: 42,
-        y: 128,
+        y: 130,
         w: 306,
-        h: 20,
+        h: 36,
         text: 'Zepp OS routes audio; apps cannot pick speaker vs headset.',
-        text_size: 13,
+        text_size: F.xxs,
         color: C.textMuted,
       })
 
       this.refs = {}
       this.refs.minus = iconButton(null, {
-        x: 36,
-        y: 152,
-        size: 32,
+        x: 34,
+        y: 174,
+        size: 36,
         src: 'icon/minus.png',
         onClick: () => this.changeVolume(-10),
       })
-      rect(null, { x: 78, y: 166, w: BAR_W, h: 6, color: C.track, radius: 3 })
-      this.refs.volumeFill = rect(null, { x: 78, y: 166, w: 1, h: 6, color: C.green, radius: 3 })
+      rect(null, { x: 78, y: 188, w: BAR_W, h: 6, color: C.track, radius: 3 })
+      this.refs.volumeFill = rect(null, { x: 78, y: 188, w: 1, h: 6, color: C.green, radius: 3 })
       this.refs.plus = iconButton(null, {
         x: 280,
-        y: 152,
-        size: 32,
+        y: 174,
+        size: 36,
         src: 'icon/plus.png',
         onClick: () => this.changeVolume(10),
       })
       this.refs.volumeText = text(null, {
         x: 312,
-        y: 152,
+        y: 174,
         w: 48,
-        h: 32,
+        h: 36,
         text: '70%',
         text_size: F.xxs,
         color: C.textDim,
@@ -81,18 +81,18 @@ Page(
 
       rect(null, {
         x: 34,
-        y: 192,
+        y: 210,
         w: 322,
-        h: 36,
+        h: 34,
         color: C.surfaceAlt,
         radius: 12,
         click_func: () => this.toggleBackground(),
       })
       text(null, {
         x: 44,
-        y: 192,
+        y: 210,
         w: 210,
-        h: 36,
+        h: 34,
         text: 'Keep playing after exit',
         text_size: F.xxs,
         color: C.text,
@@ -100,9 +100,9 @@ Page(
       })
       this.refs.bgStatus = text(null, {
         x: 244,
-        y: 192,
+        y: 210,
         w: 100,
-        h: 36,
+        h: 34,
         text: 'Off',
         text_size: F.xxs,
         color: C.textDim,
@@ -111,10 +111,10 @@ Page(
       })
 
       // Spotify Connect ----------------------------------------------------
-      text(null, { x: 24, y: 254, w: 240, h: 18, text: 'SPOTIFY CONNECT', text_size: F.xxs, color: C.textMuted })
+      text(null, { x: 24, y: 260, w: 240, h: 20, text: 'SPOTIFY CONNECT', text_size: F.xxs, color: C.textMuted })
       this.refs.refresh = iconButton(null, {
         x: 334,
-        y: 248,
+        y: 254,
         size: 30,
         src: 'icon/refresh.png',
         onClick: () => this.loadDevices(true),
@@ -122,7 +122,7 @@ Page(
 
       this.refs.status = text(null, {
         x: 24,
-        y: 276,
+        y: 286,
         w: 342,
         h: 150,
         text: 'Checking Spotify\u2026',
@@ -178,7 +178,7 @@ Page(
       const pct = Math.max(0, Math.min(100, Number(volume) || 0))
       set(this.refs.volumeFill, {
         x: 78,
-        y: 166,
+        y: 188,
         w: Math.max(2, Math.round((BAR_W * pct) / 100)),
         h: 6,
       })
@@ -255,16 +255,16 @@ Page(
       setVisible(this.refs.status, false)
       const card = rect(null, {
         x: 24,
-        y: 276,
+        y: 286,
         w: 342,
-        h: 100,
+        h: 110,
         color: C.surface,
         radius: 16,
         click_func: () => showToast({ content: 'Zepp app > Profile > SONIQ > Settings' }),
       })
       const title = text(null, {
         x: 42,
-        y: 288,
+        y: 298,
         w: 300,
         h: 28,
         text: 'Connect Spotify',
@@ -273,9 +273,9 @@ Page(
       })
       const body = text(null, {
         x: 42,
-        y: 318,
+        y: 330,
         w: 300,
-        h: 50,
+        h: 56,
         text: 'Add your Client ID and sign in from the Zepp app to control Spotify Connect devices.',
         text_size: F.xxs,
         color: C.textDim,
@@ -285,32 +285,32 @@ Page(
 
     renderDevices(devices) {
       devices.slice(0, 3).forEach((device, index) => {
-        const y = 270 + index * 58
+        const y = 286 + index * 54
         const active = device.isActive
         const card = rect(null, {
           x: 24,
           y,
           w: 342,
-          h: 56,
+          h: 52,
           color: active ? 0x12261a : C.surface,
           radius: 16,
           click_func: () => this.selectDevice(device),
         })
-        const icon = image(null, { x: 40, y: y + 15, w: 26, h: 26, src: 'icon/speaker.png' })
+        const icon = image(null, { x: 40, y: y + 13, w: 26, h: 26, src: 'icon/speaker.png' })
         const name = text(null, {
           x: 78,
-          y: y + 6,
-          w: 190,
+          y: y + 3,
+          w: 186,
           h: 26,
-          text: truncate(device.name, 22),
+          text: truncate(device.name, 18),
           text_size: F.xs,
           color: C.text,
         })
         const subtitle = text(null, {
           x: 78,
-          y: y + 32,
-          w: 190,
-          h: 18,
+          y: y + 29,
+          w: 186,
+          h: 20,
           text: active ? 'Active device' : `${device.type || 'Device'} \u2022 ${device.volume}%`,
           text_size: F.xxs,
           color: active ? C.green : C.textDim,
@@ -322,7 +322,7 @@ Page(
               w: 76,
               h: 26,
               text: 'ACTIVE',
-              text_size: 12,
+              text_size: F.xxs,
               color: C.green,
               align_h: align.RIGHT,
               align_v: align.CENTER_V,
@@ -333,7 +333,7 @@ Page(
               w: 76,
               h: 26,
               text: 'USE',
-              text_size: 12,
+              text_size: F.xxs,
               color: C.textMuted,
               align_h: align.RIGHT,
               align_v: align.CENTER_V,
